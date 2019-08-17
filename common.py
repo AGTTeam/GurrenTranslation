@@ -2,7 +2,7 @@ import struct
 import math
 
 debug = False
-warning = True
+warning = False
 codes = [ 0x0A, 0x09, 0xA5, 0x20 ]
 
 def toHex(byte):

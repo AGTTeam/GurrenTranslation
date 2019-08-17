@@ -43,7 +43,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
             shutil.copyfile(spcin + file, spcout + file)
         else:
             # Uncomment this line to enable the debug mode for only a specific file
-            #common.debug = (file == "JIHA_08.SPC")
+            #common.debug = (file == "EV_004.SPC")
             print(" Repacking " + file + " ...")
             foundstrings = []
             pointerdiff = {}
@@ -82,33 +82,18 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                                     fixpointer = True
                                     if sjis != "":
                                         if common.debug:
-                                            print(" Found SJIS string at pointer " + str(pointer))
+                                            print(" Found SJIS string at pointer " + str(pointer+16))
                                         # Write the new string
                                         if sjis in section:
                                             newsjis = section[sjis]
+                                            # If the string contains a |, try to turn the string into a 2-lines message
                                             if newsjis.find("|") > 0:
-                                                splitpos = f.tell()
+                                                newsjis = newsjis.replace("|", "<0A>")
                                                 f.seek(-28, 1)
                                                 common.writeByte(f, 2)
                                                 f.seek(27, 1)
-                                                # [TODO] 2-lines string, still needs some work
-                                                sjissplit = newsjis.split("|")
-                                                newlen = common.writeShiftJIS(f, sjissplit[0], table)
-                                                common.writeByte(f, 0x22)
-                                                common.writeByte(f, 0x00)
-                                                common.writePointer(f, pointer, pointerdiff)
-                                                splitpos = f.tell() - 16 + 1
-                                                common.writeByte(f, 0x28)
-                                                common.writeByte(f, 0x00)
-                                                common.writeByte(f, 0x10)
-                                                newlen2 = common.writeShiftJIS(f, sjissplit[1], table)
-                                                lendiff = newlen + newlen2 + 11 - oldlen
-                                                pointer = splitpos
-                                                fixpointer = False
-                                            else:
-                                                # Normal string
-                                                newlen = common.writeShiftJIS(f, newsjis, table)
-                                                lendiff = newlen - oldlen
+                                            newlen = common.writeShiftJIS(f, newsjis, table)
+                                            lendiff = newlen - oldlen
                                             if lendiff != 0:
                                                 if common.debug:
                                                     print(" Adding " + str(lendiff) + " at " + str(pointer - 4))
@@ -123,7 +108,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                                             common.writeInt(f, pointer)
                                     else:
                                         if common.debug:
-                                            print(" Found ASCII string at pointer " + str(pointer))
+                                            print(" Found ASCII string at pointer " + str(pointer+16))
                                         # Copy the string up until the pointer
                                         asciilen = common.readShort(fin)
                                         common.writeShort(f, asciilen)
