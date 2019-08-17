@@ -21,7 +21,7 @@ Control codes are written as &lt;XX&gt; and they should be kept. &lt;0A&gt; is a
 
 The bin_input file contains more codes in the format of UNK(XXXX)
 
-[TODO]A "|" can be used to make a single-line message become a two-lines message
+A "|" can be used to make a single-line message become a two-lines message
 
 # Image Editing
 [TODO]
