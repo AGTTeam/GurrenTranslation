@@ -1,9 +1,12 @@
 import struct
+import os
 import math
 
 debug = False
 warning = False
 codes = [ 0x0A, 0x09, 0xA5, 0x20 ]
+bincodes = [ 0x0A, 0x09, 0xA5, 0x20, 0x42, 0x43, 0x32, 0x64 ]
+table = {}
 
 def toHex(byte):
     hexstr = hex(byte)[2:].upper()
@@ -54,15 +57,17 @@ def writeString(f, str):
 def writeZero(f, num):
     for i in range(num):
         writeByte(f, 0)
-def writeShiftJIS(f, str, table):
+def writeShiftJIS(f, str, writelen = True):
     if str == "":
-        writeShort(f, 1)
+        if writelen:
+            writeShort(f, 1)
         writeByte(f, 0)
         return 1
     i = 0
     strlen = 0
-    lenpos = f.tell()
-    writeShort(f, strlen)
+    if writelen:
+        lenpos = f.tell()
+        writeShort(f, strlen)
     if ord(str[0]) < 256:
         # ASCII string
         while i < len(str):
@@ -101,11 +106,12 @@ def writeShiftJIS(f, str, table):
                 i += 1
                 f.write(char.encode("shift-jis"))
                 strlen += 2
-    writeZero(f, 1)
-    pos = f.tell()
-    f.seek(lenpos)
-    writeShort(f, strlen + 1)
-    f.seek(pos)
+    if writelen:
+        writeZero(f, 1)
+        pos = f.tell()
+        f.seek(lenpos)
+        writeShort(f, strlen + 1)
+        f.seek(pos)
     return strlen + 1
 def writePointer(f, pointer, pointerdiff):
     newpointer = pointer
@@ -128,7 +134,7 @@ def isStringPointer(f):
 def getSection(f, title):
     f.seek(0)
     ret = {}
-    found = False
+    found = title == ""
     for line in f:
         if not found and line.startswith("!FILE:" + title):
             found = True
@@ -140,3 +146,40 @@ def getSection(f, title):
                 split[1] = split[1].split("#")[0]
                 ret[split[0]] = split[1]
     return ret
+def checkShiftJIS(first, second):
+    # Based on https://www.lemoda.net/c/detect-shift-jis/
+    status = False
+    if (first >= 0x81 and first <= 0x84) or (first >= 0x87 and first <= 0x9f):
+        if second >= 0x40 and second <= 0x93:
+            status = True
+        elif second >= 0x9f and second <= 0xfc:
+            status = True
+    elif first >= 0xe0 and first <= 0xef:
+        if second >= 0x40 and second <= 0x93:
+            status = True
+        elif second >= 0x9f and second <= 0xfc:
+            status = True
+    return status
+def detectShiftJIS(f):
+    ret = ""
+    while True:
+        b1 = readByte(f)
+        if ret != "" and b1 == 0:
+            return ret
+        if ret != "" and b1 in bincodes:
+            ret += "<" + toHex(b1) + ">"
+            continue
+        b2 = readByte(f)
+        if checkShiftJIS(b1, b2):
+            f.seek(-2, 1)
+            try:
+                ret += f.read(2).decode("shift-jis").replace("〜", "～")
+            except UnicodeDecodeError:
+                return ""
+        else:
+            return ""
+def loadTable():
+    if os.path.isfile("table.txt"):
+        with open("table.txt", "r") as ft:
+            for line in ft:
+                table[line[:2]] = line[3:7]

@@ -12,7 +12,7 @@ Run "python extract_nfp.py" to extract the NFP files in the "extract_NFP" and "w
 
 Run "python extract_spc.py" to extract the SPC lines in the "spc_input.txt" file
 
-[TODO]Run "python extract_bin.py" to extract the BIN lines in the "bin_input.txt" file
+Run "python extract_bin.py" to extract the BIN lines in the "bin_input.txt" file
 
 # Text Editing
 Edit the "spc_input.txt" and "bin_input.txt" files
