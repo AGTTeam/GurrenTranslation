@@ -17,7 +17,7 @@ Run "python extract_spc.py" to extract the SPC lines in the "spc_input.txt" file
 # Text Editing
 Edit the "spc_input.txt" and "bin_input.txt" files
 
-Control codes are written as <XX> and they should be kept. <0A> is a line break, the other are currently unknown
+Control codes are written as &lt;XX&gt; and they should be kept. &lt;0A&gt; is a line break, the other are currently unknown
 
 The bin_input file contains more codes in the format of UNK(XXXX)
 
