@@ -1,0 +1,9 @@
+__pycache__
+dsbuff
+extract
+extract_NFP
+work_NFP
+repack
+*.nds
+spc_input*.txt
+bin_input*.txt
