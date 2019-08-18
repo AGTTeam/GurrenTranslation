@@ -34,6 +34,7 @@ with open(dgfile, "r") as dg:
             if os.path.isfile(dgwork + pngname):
                 print(" Repacking " + pngname + " ...")
                 img = Image.open(dgwork + pngname)
+                img = img.convert("RGBA")
                 pixels = img.load()
                 with open(dgout + file, "r+b") as f:
                     # Read palette
@@ -41,7 +42,8 @@ with open(dgfile, "r") as dg:
                         f.seek(paloffset)
                         paldata = []
                         for i in range(palsize // 2):
-                            paldata.append(common.readPalette(f))
+                            p = common.readShort(f)
+                            paldata.append(common.readPalette(p))
                     # Write new texture data
                     f.seek(texoffset)
                     # A3I5 Translucent Texture (3bit Alpha, 5bit Color Index)

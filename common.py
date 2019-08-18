@@ -36,8 +36,7 @@ def readByte(f):
     return struct.unpack("B", f.read(1))[0]
 
 
-def readPalette(f):
-    p = readShort(f)
+def readPalette(p):
     return (((p >> 0) & 0x1f) << 3, ((p >> 5) & 0x1f) << 3, ((p >> 10) & 0x1f) << 3, 0xff)
 
 
@@ -84,8 +83,16 @@ def writeInt(f, num):
     f.write(struct.pack("<i", num))
 
 
+def writeUInt(f, num):
+    f.write(struct.pack("<I", num))
+
+
 def writeShort(f, num):
     f.write(struct.pack("<h", num))
+
+
+def writeUShort(f, num):
+    f.write(struct.pack("<H", num))
 
 
 def writeByte(f, num):
@@ -249,7 +256,7 @@ def getPaletteIndex(palette, color):
         return 0
     if debug:
         print("  Color " + str(color) + " not found, finding closest color ...")
-    mindist = 999999
+    mindist = 0xFFFFFFFF
     disti = 0
     for i in range(1, len(palette)):
         distance = getColorDistance(color, palette[i])
@@ -259,6 +266,68 @@ def getPaletteIndex(palette, color):
     if debug:
         print("  Closest color: " + str(palette[disti]))
     return disti
+
+
+def findBestPalette(palettes, colors):
+    if len(palettes) == 1:
+        return 0
+    mindist = 0xFFFFFFFF
+    disti = 0
+    for i in range(len(palettes)):
+        distance = 0
+        for color in colors:
+            singledist = 0xFFFFFFFF
+            for palcolor in palettes[i]:
+                singledist = min(singledist, getColorDistance(color, palcolor))
+            distance += singledist
+        if distance < mindist:
+            mindist = distance
+            disti = i
+            if mindist == 0:
+                break
+    return disti
+
+
+def drawPalette(pixels, palette, width, ystart=0):
+    for x in range(len(palette)):
+        j = width + ((x % 8) * 5)
+        i = ystart + ((x // 8) * 5)
+        for j2 in range(5):
+            for i2 in range(5):
+                pixels[j + j2, i + i2] = palette[x]
+    return pixels
+
+
+def decompress(f, size):
+    # Code based on https://wiibrew.org/wiki/LZ77
+    header = readUInt(f)
+    length = header >> 8
+    type = (header >> 4) & 0xF
+    if debug:
+        print("  Header: " + hex(header) + " length: " + str(length) + " type: " + str(type))
+    if type != 1:
+        print("  [ERROR] Unknown compression type " + str(type))
+        return bytes()
+    dout = bytearray()
+    while len(dout) < length:
+        flags = struct.unpack("<B", f.read(1))[0]
+        for i in range(8):
+            if flags & 0x80:
+                info = struct.unpack(">H", f.read(2))[0]
+                num = 3 + ((info >> 12) & 0xF)
+                # disp = info & 0xFFF
+                ptr = len(dout) - (info & 0xFFF) - 1
+                for i in range(num):
+                    dout.append(dout[ptr])
+                    ptr += 1
+                    if len(dout) >= length:
+                        break
+            else:
+                dout += f.read(1)
+            flags <<= 1
+            if len(dout) >= length:
+                break
+    return bytes(dout)
 
 
 def loadTable():

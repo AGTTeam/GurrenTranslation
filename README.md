@@ -16,6 +16,8 @@ Run "python extract_bin.py" to extract the BIN lines in the "bin_input.txt" file
 
 Run "python extract_3dg.py" to extract the 3DG textures in the "work_3DG" folder
 
+Run "python extract_kpc.py" to extract the KPC textures in the "work_KPC" folder
+
 # Text Editing
 Edit the "spc_input.txt" and "bin_input.txt" files
 
@@ -28,7 +30,7 @@ A "|" can be used to make a single-line message become a two-lines message
 # Image Editing
 Edit the images in the "work_3DG" folder. The palette on the right should be followed but the repacker will try to approximate other colors to the nearest one.
 
-If one or more images are deleted from the "work_3DG" folder, the file will be just copied.
+If one or more images are deleted from the textures folder, the corresponding file will be just copied when repacking.
 
 # Repacking
 Run "python repack.py"

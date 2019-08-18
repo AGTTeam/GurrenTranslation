@@ -127,7 +127,7 @@ with open(outfile, "w") as dg:
                 f.seek(pal.offset)
                 pal.data = []
                 for i in range(pal.size // 2):
-                    pal.data.append(common.readPalette(f))
+                    pal.data.append(common.readPalette(common.readShort(f)))
                 # if common.debug:
                 #    print(pal.data)
             # Traverse texture
@@ -220,10 +220,5 @@ with open(outfile, "w") as dg:
                             pixels[j, i] = (((p >> 0) & 0x1f) << 3, ((p >> 5) & 0x1f) << 3, ((p >> 10) & 0x1f) << 3, 0xff if (p & 0x8000) else 0)
                 # Draw palette
                 if tex.format != 7:
-                    for x in range(len(palette)):
-                        j = tex.width + ((x % 8) * 5)
-                        i = (x // 8) * 5
-                        for j2 in range(5):
-                            for i2 in range(5):
-                                pixels[j + j2, i + i2] = palette[x]
+                    pixels = common.drawPalette(pixels, palette, tex.width)
                 img.save(outfolder + file.replace(".3DG", "") + "_" + tex.name + ".png", "PNG")

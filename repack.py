@@ -1,6 +1,7 @@
 import shutil
 import os
 import common
+import sys
 
 extractfolder = "extract/"
 infolder = "work_NFP/"
@@ -8,6 +9,7 @@ outfolder = "repack/"
 if os.path.isdir(outfolder):
     shutil.rmtree(outfolder)
 os.mkdir(outfolder)
+nfponly = len(sys.argv) == 2 and sys.argv[1] == "nfp"
 
 # Create the folders and copy the files
 os.mkdir(outfolder + "data")
@@ -19,9 +21,11 @@ shutil.copyfile(extractfolder + "header.bin", outfolder + "header.bin")
 shutil.copyfile(extractfolder + "y7.bin", outfolder + "y7.bin")
 shutil.copyfile(extractfolder + "y9.bin", outfolder + "y9.bin")
 
-os.system("python repack_spc.py")
-os.system("python repack_bin.py")
-os.system("python repack_3dg.py")
+if not nfponly:
+    os.system("python repack_spc.py")
+    os.system("python repack_bin.py")
+    os.system("python repack_3dg.py")
+    os.system("python repack_kpc.py")
 
 # Repack NFP
 print("Repacking NFP ...")
