@@ -2,10 +2,10 @@ import struct
 import os
 import math
 
-debug = False
-warning = False
-codes = [0x0A, 0x09, 0xA5, 0x20]
-bincodes = [0x0A, 0x09, 0xA5, 0x20, 0x42, 0x43, 0x32, 0x64]
+debug = True
+warning = True
+codes = [0x09, 0x0A, 0x20, 0xA5]
+bincodes = [0x09, 0x0A, 0x20, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x42, 0x43, 0x64, 0xA5]
 table = {}
 
 
@@ -122,14 +122,23 @@ def writeShiftJIS(f, str, writelen=True):
     if ord(str[0]) < 256:
         # ASCII string
         while i < len(str):
-            if i < len(str) - 1 and (str[i+1] == "<"):
+            if i < len(str) - 1 and str[i+1] == "<":
+                str = str[:i+1] + " " + str[i+1:]
+            if i < len(str) - 4 and str[i+1] == "U" and str[i+2] == "N" and str[i+3] == "K" and str[i+4] == "(":
                 str = str[:i+1] + " " + str[i+1:]
             char = str[i]
             if char == "<":
                 code = str[i+1] + str[i+2]
-                i += 4
                 f.write(bytes.fromhex(code))
+                i += 4
                 strlen += 1
+            elif char == "U" and i < len(str) - 4 and str[i+1] == "N" and str[i+2] == "K" and str[i+3] == "(":
+                code = str[i+4] + str[i+5]
+                f.write(bytes.fromhex(code))
+                code = str[i+6] + str[i+7]
+                f.write(bytes.fromhex(code))
+                i += 9
+                strlen += 2
             else:
                 if i+1 == len(str):
                     bigram = char + " "
@@ -235,7 +244,11 @@ def detectShiftJIS(f):
             try:
                 ret += f.read(2).decode("shift-jis").replace("〜", "～")
             except UnicodeDecodeError:
-                return ""
+                if ret.count("UNK(") >= 5:
+                    return ""
+                ret += "UNK(" + toHex(b1) + toHex(b2) + ")"
+        elif len(ret) > 0 and ret.count("UNK(") < 5:
+            ret += "UNK(" + toHex(b1) + toHex(b2) + ")"
         else:
             return ""
 
