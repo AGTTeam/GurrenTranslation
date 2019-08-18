@@ -21,6 +21,7 @@ shutil.copyfile(extractfolder + "y9.bin", outfolder + "y9.bin")
 
 os.system("python repack_spc.py")
 os.system("python repack_bin.py")
+os.system("python repack_3dg.py")
 
 # Repack NFP
 print("Repacking NFP ...")

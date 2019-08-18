@@ -26,7 +26,7 @@ for file in os.listdir(infolder):
             subname = common.readString(f, 16)
             # Read starting position and size (multiplied by 4)
             startpos = common.readInt(f)
-            size = int(common.readInt(f) / 4)
+            size = common.readInt(f) // 4
             # Extract the file
             if common.debug:
                 print(" Extracting " + subname + " starting at " + str(startpos) + " with size " + str(size))

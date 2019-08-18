@@ -14,6 +14,8 @@ Run "python extract_spc.py" to extract the SPC lines in the "spc_input.txt" file
 
 Run "python extract_bin.py" to extract the BIN lines in the "bin_input.txt" file
 
+Run "python extract_3dg.py" to extract the 3DG textures in the "work_3DG" folder
+
 # Text Editing
 Edit the "spc_input.txt" and "bin_input.txt" files
 
@@ -24,7 +26,9 @@ The bin_input file contains more codes in the format of UNK(XXXX)
 A "|" can be used to make a single-line message become a two-lines message
 
 # Image Editing
-[TODO]
+Edit the images in the "work_3DG" folder. The palette on the right should be followed but the repacker will try to approximate other colors to the nearest one.
+
+If one or more images are deleted from the "work_3DG" folder, the file will be just copied.
 
 # Repacking
 Run "python repack.py"
