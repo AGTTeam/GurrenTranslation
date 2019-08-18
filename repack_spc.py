@@ -21,7 +21,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
             shutil.copyfile(spcin + file, spcout + file)
         else:
             # Uncomment this line to enable the debug mode for only a specific file
-            #common.debug = (file == "EV_004.SPC")
+            # common.debug = (file == "EV_004.SPC")
             print(" Repacking " + file + " ...")
             foundstrings = []
             pointerdiff = {}
@@ -111,7 +111,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                         pointer = common.readInt(f)
                         if pointer > 0 and pointer < codesize:
                             found = False
-                            if (b1 == 0x12 and b2 == 0x00) or (b1 == 0x00 and b2 == 0x11):# or (b1 == 0x00 and b2 == 0x31):
+                            if (b1 == 0x12 and b2 == 0x00) or (b1 == 0x00 and b2 == 0x11):  # or (b1 == 0x00 and b2 == 0x31):
                                 fin.seek(pointer + 16)
                                 b3 = common.readByte(fin)
                                 b4 = common.readByte(fin)

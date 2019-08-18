@@ -14,7 +14,7 @@ with codecs.open(outfile, "w", "utf-8") as out:
         first = True
         foundstrings = []
         with open(infolder + file, "rb") as f:
-            f.seek(12) # "SCRP" + filesize + "CODE"
+            f.seek(12)  # "SCRP" + filesize + "CODE"
             codesize = common.readInt(f)
             while f.tell() < 16 + codesize - 4:
                 pos = f.tell()
@@ -32,6 +32,6 @@ with codecs.open(outfile, "w", "utf-8") as out:
                                 print(" Found string at " + str(pointer + 16) + " with length " + str(len(sjis)))
                             if first:
                                 first = False
-                                out.write("!FILE:" + filename + "\n")
+                                out.write("!FILE:" + file + "\n")
                             out.write(sjis + "=\n")
                 f.seek(pos + 1)

@@ -1,6 +1,5 @@
 import shutil
 import os
-import codecs
 import common
 
 extractfolder = "extract/"

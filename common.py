@@ -1,12 +1,12 @@
 import struct
 import os
-import math
 
 debug = False
 warning = False
-codes = [ 0x0A, 0x09, 0xA5, 0x20 ]
-bincodes = [ 0x0A, 0x09, 0xA5, 0x20, 0x42, 0x43, 0x32, 0x64 ]
+codes = [0x0A, 0x09, 0xA5, 0x20]
+bincodes = [0x0A, 0x09, 0xA5, 0x20, 0x42, 0x43, 0x32, 0x64]
 table = {}
+
 
 def toHex(byte):
     hexstr = hex(byte)[2:].upper()
@@ -14,12 +14,36 @@ def toHex(byte):
         return "0" + hexstr
     return hexstr
 
+
 def readInt(f):
     return struct.unpack("<i", f.read(4))[0]
+
+
+def readUInt(f):
+    return struct.unpack("<I", f.read(4))[0]
+
+
 def readShort(f):
     return struct.unpack("<h", f.read(2))[0]
+
+
+def readUShort(f):
+    return struct.unpack("<H", f.read(2))[0]
+
+
 def readByte(f):
     return struct.unpack("B", f.read(1))[0]
+
+
+def readString(f, length):
+    str = ""
+    for i in range(length):
+        byte = readByte(f)
+        if byte != 0:
+            str += chr(byte)
+    return str
+
+
 def readShiftJIS(f):
     len = readShort(f)
     pos = f.tell()
@@ -46,18 +70,29 @@ def readShiftJIS(f):
         return sjis
     return ""
 
+
 def writeInt(f, num):
     f.write(struct.pack("<i", num))
+
+
 def writeShort(f, num):
     f.write(struct.pack("<h", num))
+
+
 def writeByte(f, num):
     f.write(struct.pack("B", num))
+
+
 def writeString(f, str):
     f.write(str.encode("ascii"))
+
+
 def writeZero(f, num):
     for i in range(num):
         writeByte(f, 0)
-def writeShiftJIS(f, str, writelen = True):
+
+
+def writeShiftJIS(f, str, writelen=True):
     if str == "":
         if writelen:
             writeShort(f, 1)
@@ -113,24 +148,29 @@ def writeShiftJIS(f, str, writelen = True):
         writeShort(f, strlen + 1)
         f.seek(pos)
     return strlen + 1
+
+
 def writePointer(f, pointer, pointerdiff):
     newpointer = pointer
-    for k,v in pointerdiff.items():
+    for k, v in pointerdiff.items():
         if k < pointer:
             newpointer += v
     if debug:
         print("  Shifted pointer " + str(pointer+16) + " to " + str(newpointer+16))
     writeInt(f, newpointer)
 
+
 def isStringPointer(f):
-    b1 = readByte(f)
+    readByte(f)
     b2 = readByte(f)
     b3 = readByte(f)
     b4 = readByte(f)
-    #print("Signature: " + hex(b1) + " " + hex(b2) + " " + hex(b3) + " " + hex(b4))
+    # print("Signature: " + hex(b1) + " " + hex(b2) + " " + hex(b3) + " " + hex(b4))
     if (b2 == 0 or b2 == 0x28 or b2 == 0x2A) and b3 == 0 and b4 == 0x10:
         return True
     return False
+
+
 def getSection(f, title):
     f.seek(0)
     ret = {}
@@ -146,6 +186,8 @@ def getSection(f, title):
                 split[1] = split[1].split("#")[0]
                 ret[split[0]] = split[1]
     return ret
+
+
 def checkShiftJIS(first, second):
     # Based on https://www.lemoda.net/c/detect-shift-jis/
     status = False
@@ -160,6 +202,8 @@ def checkShiftJIS(first, second):
         elif second >= 0x9f and second <= 0xfc:
             status = True
     return status
+
+
 def detectShiftJIS(f):
     ret = ""
     while True:
@@ -178,6 +222,8 @@ def detectShiftJIS(f):
                 return ""
         else:
             return ""
+
+
 def loadTable():
     if os.path.isfile("table.txt"):
         with open("table.txt", "r") as ft:
