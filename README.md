@@ -19,8 +19,8 @@ Control codes are written as &lt;XX&gt; and they should be kept. &lt;0A&gt; is a
 The bin_input file contains more codes in the format of UNK(XXXX), these should always be kept  
 A "|" can be used to make a single-line message become a two-lines message  
 # Image Editing
-Edit the images in the "work_3DG", "work_KPC" and "work_YCE" folders. The palette on the right should be followed but the repacker will try to approximate other colors to the nearest one.  
-If one or more images are deleted from the textures folder, the corresponding file will be just copied when repacking.  
+Edit the images in the "work_3DG", "work_KPC" and "work_YCE" folders. The palette on the right should be followed but the repacker will try to approximate other colors to the nearest one  
+If one or more images are deleted from the textures folder, the corresponding file will be just copied when repacking  
 # Repacking
 Run "python repack.py"  
 Use dsbuff or similar to repack everything from the repack folder  
