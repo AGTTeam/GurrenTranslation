@@ -9,13 +9,17 @@ Run "python extract_spc.py" to extract the SPC lines in the "spc_input.txt" file
 Run "python extract_bin.py" to extract the BIN lines in the "bin_input.txt" file  
 Run "python extract_3dg.py" to extract the 3DG textures in the "work_3DG" folder  
 Run "python extract_kpc.py" to extract the KPC textures in the "work_KPC" folder  
+Run "python extract_yce.py" to extract the KPC textures in the "work_YCE" folder  
+# Font Editing
+The font should be replaced in work_NFP/ETC.NFP/GL_12FNT.NFT  
+A "table.txt" file is needed with each line in the format of "Bigram=Code", for example "Aa=996B"  
 # Text Editing
 Edit the "spc_input.txt" and "bin_input.txt" files  
 Control codes are written as &lt;XX&gt; and they should be kept. &lt;0A&gt; is a line break, the other are currently unknown  
 The bin_input file contains more codes in the format of UNK(XXXX), these should always be kept  
 A "|" can be used to make a single-line message become a two-lines message  
 # Image Editing
-Edit the images in the "work_3DG" folder. The palette on the right should be followed but the repacker will try to approximate other colors to the nearest one.  
+Edit the images in the "work_3DG", "work_KPC" and "work_YCE" folders. The palette on the right should be followed but the repacker will try to approximate other colors to the nearest one.  
 If one or more images are deleted from the textures folder, the corresponding file will be just copied when repacking.  
 # Repacking
 Run "python repack.py"  
