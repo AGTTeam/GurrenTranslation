@@ -29,13 +29,14 @@ Use dsbuff or similar to repack everything from the repack folder
 4 File size  
 4 Magic (CODE)  
 4 Code size  
+6 0x00 0x04 0x00 0x00 0x00 0x00
 [...code...]  
-4 Magic (FUNC)  
+3 0x8F 0x00 0x00
+4 Magic (FUNC), Optional  
 4 Func size  
 [...func...]  
 4 Magic (TERM)  
 # STOP_001.SPC Code
-00 04 00 00 00 00  
 29 00 00 00 00 < If this is changed to 1, the place name is not hidden  
 29 01 00 00 00 *PlaceNameVisible*  
 80 00 00 00 00 2A 00 31 0F 04 00 00 00  
@@ -91,7 +92,6 @@ Use dsbuff or similar to repack everything from the repack folder
 29 01 00 00 00  
 29 03 00 00 00 *ChrSet2*  
 80 00 00 00 00 2A 00 31 0F 0C 00 00 00  
-8F 00 00  
 # STOP_001.SPC Functions
 PlaceNameVisible(0x2901@11)  
 ChrSet(0x2903@44, 0x2903@417)  
