@@ -36,7 +36,7 @@ Use dsbuff or similar to repack everything from the repack folder
 4 Magic (TERM)  
 # STOP_001.SPC Code
 00 04 00 00 00 00  
-29 00 00 00 00                              < If this is changed to 1, the place name is not hidden  
+29 00 00 00 00 < If this is changed to 1, the place name is not hidden  
 29 01 00 00 00 *PlaceNameVisible*  
 80 00 00 00 00 2A 00 31 0F 04 00 00 00  
 29 07 00 00 00  
@@ -65,7 +65,7 @@ Use dsbuff or similar to repack everything from the repack folder
 29 02 00 00 00 *MSG_TRUE*  
 81 00 00 00 00 2A 00 31 0F 08 00 00 00  
 29 01 00 00 00  
-10 1B 00 "japstr" 00 22 00 E1 00 00 00 28 00  
+10 1B 00 "………カミナに挨拶しなきゃ" 00 22 00 E1 00 00 00 28 00  
 29 02 00 00 00 *MswMess*  
 80 00 00 00 00 2A 00 31 0F 08 00 00 00  
 29 00 00 00 00  
