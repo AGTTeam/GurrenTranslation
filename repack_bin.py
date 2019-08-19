@@ -16,18 +16,20 @@ with codecs.open(binfile, "r", "utf-8") as bin:
 insize = os.path.getsize(binin)
 with open(binin, "rb") as fi:
     with open(binout, "r+b") as fo:
-        fi.seek(990000)
-        while fi.tell() < insize - 16:
+        # Skip the beginning and end of the file to avoid false-positives
+        fi.seek(992000)
+        while fi.tell() < 1180000:
             pos = fi.tell()
-            check = common.detectShiftJIS(fi)
-            if check in section and section[check] != "":
-                if common.debug:
-                    print(" Replacing string at " + str(pos))
-                fo.seek(pos)
-                common.writeShiftJIS(fo, section[check], False)
-                pos = fi.tell() - 1
-                if fo.tell() > pos:
-                    print(" [ERROR] String " + section[check] + " is too long.")
-                else:
-                    common.writeZero(fo, pos - fo.tell())
+            if pos < 1010000 or pos > 1107700:
+                check = common.detectShiftJIS(fi)
+                if check in section and section[check] != "":
+                    if common.debug:
+                        print(" Replacing string at " + str(pos))
+                    fo.seek(pos)
+                    common.writeShiftJIS(fo, section[check], False)
+                    pos = fi.tell() - 1
+                    if fo.tell() > pos:
+                        print(" [ERROR] String " + section[check] + " is too long.")
+                    else:
+                        common.writeZero(fo, pos - fo.tell())
             fi.seek(pos + 1)
