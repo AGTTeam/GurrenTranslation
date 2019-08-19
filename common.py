@@ -201,13 +201,14 @@ def getSection(f, title):
     ret = {}
     found = title == ""
     for line in f:
+        line = line.strip()
         if not found and line.startswith("!FILE:" + title):
             found = True
         elif found:
             if line.startswith("!FILE:"):
                 break
             elif line.find("=") > 0:
-                split = line[:-1].split("=", 1)
+                split = line.split("=", 1)
                 split[1] = split[1].split("#")[0]
                 ret[split[0]] = split[1]
     return ret
