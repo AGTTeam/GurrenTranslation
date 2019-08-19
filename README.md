@@ -24,86 +24,83 @@ If one or more images are deleted from the textures folder, the corresponding fi
 # Repacking
 Run "python repack.py"  
 Use dsbuff or similar to repack everything from the repack folder  
-# SPC File Format
-4 Magic (SCRP)
-4 File size
-4 Magic (CODE)
-4 Code size
-[...code...]
-4 Magic (FUNC)
-4 Func size
-[...func...]
-4 Magic (TERM)
-
-0x29 is always followed by a uint
-
-00 04 00 00 00 00
-29 00 00 00 00                              < If this is changed to 1, the place name is not hidden
-29 01 00 00 00 *PlaceNameVisible*
-80 00 00 00 00 2A 00 31 0F 04 00 00 00
-29 07 00 00 00
-29 21 00 00 00
-29 00 00 00 00
-29 03 00 00 00 *ChrSet1*
-80 00 00 00 00 2A 00 31 0F 0C 00 00 00
-29 01 00 00 00
-29 00 00 00 00
-10 08 00 "BU01_01" 00 22 00 45 00 00 00 28 00
-29 03 00 00 00 *FaceLoad*
-80 00 00 00 00 2A 00 31 0F 0C 00 00 00
-29 00 00 00 00
-29 01 00 00 00 *FaceSet*
-81 00 00 00 00 2A 00 31 0F 04 00 00 00
-29 00 00 00 00
-29 12 00 00 00
-29 0A 00 00 00
-29 00 00 00 00
-29 00 10 00 00
-29 01 00 00 00
-29 06 00 00 00 *A3dObjMove1*
-80 00 00 00 00 2A 00 31 0F 18 00 00 00
-10 09 00 "MSW_A001" 00 22 00 B1 00 00 00 28 00
-29 00 00 00 00
-29 02 00 00 00 *MSG_TRUE*
-81 00 00 00 00 2A 00 31 0F 08 00 00 00
-29 01 00 00 00
-10 1B 00 "japstr" 00 22 00 E1 00 00 00 28 00
-29 02 00 00 00 *MswMess*
-80 00 00 00 00 2A 00 31 0F 08 00 00 00
-29 00 00 00 00
-29 01 00 00 00 *MswHit*
-80 00 00 00 00 2A 00 31 0F 04 00 00 00
-29 00 00 00 00 *MSG_HIDE*
-81 00 00 00 00 2A 00
-29 00 00 00 00
-29 12 00 00 00
-29 0A 00 00 00
-29 00 00 00 00
-29 00 00 00 00
-29 01 00 00 00
-29 06 00 00 00 *A3dObjMove2*
-80 00 00 00 00 2A 00 31 0F 18 00 00 00
-29 00 00 00 00
-29 01 00 00 00 *FaceFree*
-80 00 00 00 00 2A 00 31 0F 04 00 00 00
-29 00 00 00 00 *PlaceNameRedraw*
-80 00 00 00 00 2A 00
-29 07 00 00 00
-29 21 00 00 00
-29 01 00 00 00
-29 03 00 00 00 *ChrSet2*
-80 00 00 00 00 2A 00 31 0F 0C 00 00 00
-8F 00 00
-
-Functions
-PlaceNameVisible(0x2901@11)
-ChrSet(0x2903@44, 0x2903@417)
-FaceLoad(0x2903@91)
-A3dObjMove(0x2906@162,0x2906@349)
-MswMess(0x2902@266)
-MswHit(0x2901@289)
-FaceFree(0x2901@372)
-PlaceNameRedraw(0x2900@390)
-FaceSet(0x2901@114)
-MSG_TRUE(0x2902@205)
-MSG_HIDE(0x2900@307)
+# SPC File Format (WIP)
+4 Magic (SCRP)  
+4 File size  
+4 Magic (CODE)  
+4 Code size  
+[...code...]  
+4 Magic (FUNC)  
+4 Func size  
+[...func...]  
+4 Magic (TERM)  
+# STOP_001.SPC Code
+00 04 00 00 00 00  
+29 00 00 00 00                              < If this is changed to 1, the place name is not hidden  
+29 01 00 00 00 *PlaceNameVisible*  
+80 00 00 00 00 2A 00 31 0F 04 00 00 00  
+29 07 00 00 00  
+29 21 00 00 00  
+29 00 00 00 00  
+29 03 00 00 00 *ChrSet1*  
+80 00 00 00 00 2A 00 31 0F 0C 00 00 00  
+29 01 00 00 00  
+29 00 00 00 00  
+10 08 00 "BU01_01" 00 22 00 45 00 00 00 28 00  
+29 03 00 00 00 *FaceLoad*  
+80 00 00 00 00 2A 00 31 0F 0C 00 00 00  
+29 00 00 00 00  
+29 01 00 00 00 *FaceSet*  
+81 00 00 00 00 2A 00 31 0F 04 00 00 00  
+29 00 00 00 00  
+29 12 00 00 00  
+29 0A 00 00 00  
+29 00 00 00 00  
+29 00 10 00 00  
+29 01 00 00 00  
+29 06 00 00 00 *A3dObjMove1*  
+80 00 00 00 00 2A 00 31 0F 18 00 00 00  
+10 09 00 "MSW_A001" 00 22 00 B1 00 00 00 28 00  
+29 00 00 00 00  
+29 02 00 00 00 *MSG_TRUE*  
+81 00 00 00 00 2A 00 31 0F 08 00 00 00  
+29 01 00 00 00  
+10 1B 00 "japstr" 00 22 00 E1 00 00 00 28 00  
+29 02 00 00 00 *MswMess*  
+80 00 00 00 00 2A 00 31 0F 08 00 00 00  
+29 00 00 00 00  
+29 01 00 00 00 *MswHit*  
+80 00 00 00 00 2A 00 31 0F 04 00 00 00  
+29 00 00 00 00 *MSG_HIDE*  
+81 00 00 00 00 2A 00  
+29 00 00 00 00  
+29 12 00 00 00  
+29 0A 00 00 00  
+29 00 00 00 00  
+29 00 00 00 00  
+29 01 00 00 00  
+29 06 00 00 00 *A3dObjMove2*  
+80 00 00 00 00 2A 00 31 0F 18 00 00 00  
+29 00 00 00 00  
+29 01 00 00 00 *FaceFree*  
+80 00 00 00 00 2A 00 31 0F 04 00 00 00  
+29 00 00 00 00 *PlaceNameRedraw*  
+80 00 00 00 00 2A 00  
+29 07 00 00 00  
+29 21 00 00 00  
+29 01 00 00 00  
+29 03 00 00 00 *ChrSet2*  
+80 00 00 00 00 2A 00 31 0F 0C 00 00 00  
+8F 00 00  
+# STOP_001.SPC Functions
+PlaceNameVisible(0x2901@11)  
+ChrSet(0x2903@44, 0x2903@417)  
+FaceLoad(0x2903@91)  
+A3dObjMove(0x2906@162,0x2906@349)  
+MswMess(0x2902@266)  
+MswHit(0x2901@289)  
+FaceFree(0x2901@372)  
+PlaceNameRedraw(0x2900@390)  
+FaceSet(0x2901@114)  
+MSG_TRUE(0x2902@205)  
+MSG_HIDE(0x2900@307)  
