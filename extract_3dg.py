@@ -66,7 +66,7 @@ with open(outfile, "w") as dg:
             if common.debug:
                 print(" blocksize: " + str(blocksize) + " blocklimit: " + str(blocklimit))
                 print(" texdataoffset: " + str(texdataoffset) + " texdatasize: " + str(texdatasize))
-                print(" sptexoffset: " + str(sptexoffset) + " sptexsize: " + str(sptexsize) + " texdataoffset: " + str(texdataoffset))
+                print(" sptexoffset: " + str(sptexoffset) + " sptexsize: " + str(sptexsize) + " spdataoffset: " + str(spdataoffset))
                 print(" paldataoffset: " + str(paldataoffset) + " paldatasize: " + str(paldatasize) + " paldefoffset: " + str(paldefoffset))
             # Texture definition
             f.seek(1, 1)
@@ -148,6 +148,11 @@ with open(outfile, "w") as dg:
                 else:
                     texdata = (tex.format, tex.width, tex.height, tex.size, tex.offset)
                 dg.write(tex.name + "=" + ",".join(str(item) for item in texdata) + "\n")
+                if tex.format == 5:
+                    r = tex.size >> 1
+                    f.seek(spdataoffset)
+                    spdata = f.read(r)
+                    spdataoffset += r
                 # Export texture
                 f.seek(tex.offset)
                 data = f.read(tex.size)
@@ -199,6 +204,32 @@ with open(outfile, "w") as dg:
                                 pixels[j, i] = palette[index]
                             elif common.warning:
                                 print("  [WARNING] Index " + str(index) + " is out of range " + str(len(palette)))
+                # 4x4-Texel Compressed Texture [TODO]
+                elif tex.format == 5:
+                    w = tex.width // 4
+                    h = tex.height // 4
+                    for y in range(h):
+                        for x in range(w):
+                            index = y * w + x
+                            t = data[index]
+                            d = spdata[index]
+                            addr = d & 0x3fff
+                            mode = (d >> 14) & 3
+                            for r in range(4):
+                                for c in range(4):
+                                    texel = (t >> ((r * 4 + c) * 2)) & 3
+                                    print("addr:" + str(addr) + " texel:" + str(texel))
+                                    i = y * 4 + r
+                                    j = x * 4 + c
+                                    if mode == 0:
+                                        if texel == 3:
+                                            pixels[j, i] = (0xff, 0xff, 0xff, 0)
+                                        elif (addr << 1) + texel < len(palette):
+                                            pixels[j, i] = palette[(addr << 1) + texel]
+                                        elif common.warning:
+                                            print("  [WARNING] Index " + str((addr << 1) + texel) + " is out of range " + str(len(palette)))
+                                    else:
+                                        print("  [ERROR] Unknown mode " + str(mode))
                 # A5I3 Translucent Texture (5bit Alpha, 3bit Color Index)
                 elif tex.format == 6:
                     for i in range(tex.height):
