@@ -62,9 +62,19 @@ for file in os.listdir(kpcin):
                     pal = common.findBestPalette(palettes, tilecolors)
                     tile = []
                     for tilecolor in tilecolors:
-                        tile.append(common.getPaletteIndex(palettes[pal], tilecolor))
-                    tiles.append(tile)
-                    maps.append((pal, 0, 0, len(tiles) - 1))
+                        # Fix transparent for EQ_M0* files since they palette colors 0 and 1 are the same.
+                        tile.append(common.getPaletteIndex(palettes[pal], tilecolor, file.startswith("EQ_M0")))
+                    # Search for a repeated tile
+                    found = -1
+                    for ti in range(len(tiles)):
+                        if tiles[ti] == tile:
+                            found = ti
+                            break
+                    if found != -1:
+                        maps.append((pal, 0, 0, found))
+                    else:
+                        tiles.append(tile)
+                        maps.append((pal, 0, 0, len(tiles) - 1))
                     j += tilewidth
                     if j >= width:
                         j = 0

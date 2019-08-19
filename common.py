@@ -256,10 +256,10 @@ def getColorDistance(c1, c2):
     return math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2)
 
 
-def getPaletteIndex(palette, color):
+def getPaletteIndex(palette, color, fixtrasp=False):
     if color[3] == 0:
         return 0
-    for i in range(1, len(palette)):
+    for i in range(0 if fixtrasp else 1, len(palette)):
         if palette[i][0] == color[0] and palette[i][1] == color[1] and palette[i][2] == color[2]:
             return i
     if palette[0][0] == color[0] and palette[0][1] == color[1] and palette[0][2] == color[2]:
