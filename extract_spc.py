@@ -7,7 +7,6 @@ outfile = "spc_input.txt"
 
 with codecs.open(outfile, "w", "utf-8") as out:
     for file in os.listdir(infolder):
-        # Skip these 2 weird files
         if not file.endswith(".SPC"):
             continue
         print("Processing " + file + " ...")
