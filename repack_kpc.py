@@ -20,7 +20,8 @@ for file in os.listdir(kpcin):
     if not os.path.isfile(kpcwork + pngname):
         shutil.copyfile(kpcin + file, kpcout + file)
     else:
-        print("Processing " + file + " ...")
+        if common.debug:
+            print("Processing " + file + " ...")
         with open(kpcin + file, "rb") as fin:
             with open(kpcout + file, "wb") as f:
                 # Find palette offset

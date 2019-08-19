@@ -32,7 +32,8 @@ with open(dgfile, "r") as dg:
                 palsize = int(texdata[6])
                 paloffset = int(texdata[7])
             if os.path.isfile(dgwork + pngname):
-                print(" Repacking " + pngname + " ...")
+                if common.debug:
+                    print(" Repacking " + pngname + " ...")
                 img = Image.open(dgwork + pngname)
                 img = img.convert("RGBA")
                 pixels = img.load()

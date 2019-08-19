@@ -57,3 +57,11 @@ for file in os.listdir(infolder):
             with open(subfilepath, "rb") as newf:
                 f.write(newf.read(filesize))
             datapos += filesize
+
+# Repack ROM
+print("Repacking ROM ...")
+if not os.path.isfile("ndstool.exe"):
+    print("[ERROR] ndstool.exe not found")
+else:
+    os.system("ndstool -c rom_patched.nds -9 repack/arm9.bin -7 repack/arm7.bin -y9 repack/y9.bin -y7 repack/y7.bin -t repack/banner.bin -h repack/header.bin -d repack/data -y repack/overlay")
+    print("Done!")

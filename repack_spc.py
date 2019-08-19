@@ -22,7 +22,8 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
         else:
             # Uncomment this line to enable the debug mode for only a specific file
             # common.debug = (file == "EV_004.SPC")
-            print(" Repacking " + file + " ...")
+            if common.debug:
+                print(" Repacking " + file + " ...")
             foundstrings = []
             pointerdiff = {}
             f = open(spcout + file, "wb")

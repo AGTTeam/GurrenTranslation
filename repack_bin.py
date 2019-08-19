@@ -1,6 +1,7 @@
 import os
 import codecs
 import common
+import shutil
 
 binin = "extract/arm9.bin"
 binout = "repack/arm9.bin"
@@ -12,6 +13,10 @@ common.loadTable()
 section = {}
 with codecs.open(binfile, "r", "utf-8") as bin:
     section = common.getSection(bin, "")
+
+if os.path.isfile(binout):
+    os.remove(binout)
+shutil.copyfile(binin, binout)
 
 insize = os.path.getsize(binin)
 with open(binin, "rb") as fi:
