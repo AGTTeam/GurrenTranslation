@@ -34,6 +34,7 @@ with open(binin, "rb") as fi:
                     common.writeShiftJIS(fo, section[check], False)
                     pos = fi.tell() - 1
                     if fo.tell() > pos:
+                        common.writeZero(fo, 1)
                         print(" [ERROR] String " + section[check] + " is too long.")
                     else:
                         common.writeZero(fo, pos - fo.tell())
