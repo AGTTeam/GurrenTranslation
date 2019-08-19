@@ -65,6 +65,9 @@ with open(dgfile, "r") as dg:
                             for j in range(texwidth):
                                 index = common.getPaletteIndex(paldata, pixels[j, i])
                                 common.writeByte(f, index)
+                    # 4x4-Texel Compressed Texture
+                    elif texformat == 5:
+                        print(" [ERROR] Texture format 5 not implemented")
                     # A5I3 Translucent Texture (5bit Alpha, 3bit Color Index)
                     elif texformat == 6:
                         print(" [ERROR] Texture format 6 not implemented")
