@@ -217,14 +217,10 @@ def checkShiftJIS(first, second):
     # Based on https://www.lemoda.net/c/detect-shift-jis/
     status = False
     if (first >= 0x81 and first <= 0x84) or (first >= 0x87 and first <= 0x9f):
-        if second >= 0x40 and second <= 0x93:
-            status = True
-        elif second >= 0x9f and second <= 0xfc:
+        if second >= 0x40 and second <= 0xfc:
             status = True
     elif first >= 0xe0 and first <= 0xef:
-        if second >= 0x40 and second <= 0x93:
-            status = True
-        elif second >= 0x9f and second <= 0xfc:
+        if second >= 0x40 and second <= 0xfc:
             status = True
     return status
 
@@ -242,7 +238,7 @@ def detectShiftJIS(f):
         if checkShiftJIS(b1, b2):
             f.seek(-2, 1)
             try:
-                ret += f.read(2).decode("shift-jis").replace("〜", "～")
+                ret += f.read(2).decode("cp932").replace("〜", "～")
             except UnicodeDecodeError:
                 if ret.count("UNK(") >= 5:
                     return ""

@@ -13,9 +13,9 @@ with codecs.open(outfile, "w", "utf-8") as out:
         foundstrings = []
         while f.tell() < 1180000:
             pos = f.tell()
-            if pos < 1010000 or pos > 1110000:
+            if pos < 1010000 or pos > 1107700:
                 check = common.detectShiftJIS(f)
-                if check != "" and len(check) > 1:
+                if check != "":
                     if check not in foundstrings:
                         if common.debug:
                             print("Found string at " + str(pos))
