@@ -51,7 +51,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                                 sjis = common.readShiftJIS(fin)
                                 # [TODO] A few files have unordered pointers
                                 if lastpos >= pointer + 20:
-                                    print(" [WARNING] Wrong order in file, skipping pointer")
+                                    print("  [WARNING] Wrong order in file, skipping pointer")
                                 else:
                                     # Copy the file up to here
                                     pos = fin.tell()
@@ -61,7 +61,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                                     fixpointer = True
                                     if sjis != "":
                                         if common.debug:
-                                            print(" Found SJIS string at pointer " + str(pointer+16))
+                                            print("  Found SJIS string at pointer " + str(pointer+16))
                                         # Write the new string
                                         if sjis in section:
                                             newsjis = section[sjis]
@@ -75,7 +75,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                                             lendiff = newlen - oldlen
                                             if lendiff != 0:
                                                 if common.debug:
-                                                    print(" Adding " + str(lendiff) + " at " + str(pointer - 4))
+                                                    print("   Adding " + str(lendiff) + " at " + str(pointer - 4))
                                                 pointerdiff[pointer + 4] = lendiff
                                         else:
                                             common.writeShiftJIS(f, sjis)
@@ -87,14 +87,12 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                                             common.writeInt(f, pointer)
                                     else:
                                         if common.debug:
-                                            print(" Found ASCII string at pointer " + str(pointer+16))
+                                            print("  Found ASCII string at pointer " + str(pointer+16))
                                         # Copy the string up until the pointer
                                         asciilen = common.readShort(fin)
                                         common.writeShort(f, asciilen)
                                         asciistr = fin.read(asciilen)
                                         f.write(asciistr)
-                                        if common.debug:
-                                            print(asciistr.decode("ascii"))
                                         common.writeByte(f, 0x22)
                                         common.writeByte(f, 0)
                                         common.writePointer(f, pointer, pointerdiff)
@@ -118,16 +116,16 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                                 b4 = common.readByte(fin)
                                 if (b3 == 0x31 and b4 == 0x0F) or (b3 == 0x00 and b4 == 0x11):
                                     if common.debug:
-                                        print(" Found code pointer " + str(pointer+16) + " at " + str(pos) + " with " + hex(b1) + ":" + hex(b2) + ":" + hex(b3) + ":" + hex(b4))
+                                        print("  Found code pointer " + str(pointer+16) + " at " + str(pos) + " with " + hex(b1) + ":" + hex(b2) + ":" + hex(b3) + ":" + hex(b4))
                                     found = True
                                 elif common.debug:
-                                    print(" Found possible code pointer " + str(pointer+16) + " at " + str(pos) + " with " + hex(b1) + ":" + hex(b2) + ":" + hex(b3) + ":" + hex(b4))
+                                    print("  Found possible code pointer " + str(pointer+16) + " at " + str(pos) + " with " + hex(b1) + ":" + hex(b2) + ":" + hex(b3) + ":" + hex(b4))
                             elif common.debug and (b1 != 0 or b2 != 0):
                                 fin.seek(pointer + 16)
                                 b3 = common.readByte(fin)
                                 b4 = common.readByte(fin)
                                 if b3 != 0 or b4 != 0:
-                                    print(" Testing pointer " + str(pointer+16) + " at " + str(pos) + " with " + hex(b1) + ":" + hex(b2) + ":" + hex(b3) + ":" + hex(b4))
+                                    print("  Testing pointer " + str(pointer+16) + " at " + str(pos) + " with " + hex(b1) + ":" + hex(b2) + ":" + hex(b3) + ":" + hex(b4))
                             if found:
                                 f.seek(pos + 2)
                                 common.writePointer(f, pointer, pointerdiff)
@@ -158,7 +156,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                         common.writeString(f, function)
                         common.writeZero(f, 1)
                         if common.debug:
-                            print(" Found function: " + function)
+                            print("  Found function: " + function)
                         # Read the pointers until we find 0
                         while True:
                             pointer = common.readInt(fin)

@@ -78,3 +78,4 @@ PlaceNameRedraw(0x2900@390)
 FaceSet(0x2901@114)  
 MSG_TRUE(0x2902@205)  
 MSG_HIDE(0x2900@307)  
+# EV_003.SPC

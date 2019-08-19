@@ -148,7 +148,10 @@ def writeShiftJIS(f, str, writelen=True):
                 i += 2
                 if bigram not in table:
                     if warning:
-                        print(" [WARNING] Bigram not found: " + bigram)
+                        try:
+                            print(" [WARNING] Bigram not found: " + bigram)
+                        except UnicodeEncodeError:
+                            print(" [WARNING] Bigram not found")
                     bigram = "  "
                 f.write(bytes.fromhex(table[bigram]))
                 strlen += 2
