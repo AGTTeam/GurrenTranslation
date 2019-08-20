@@ -9,7 +9,7 @@ outfolder = "repack/"
 if os.path.isdir(outfolder):
     shutil.rmtree(outfolder)
 os.mkdir(outfolder)
-nfponly = len(sys.argv) == 2 and sys.argv[1] == "nfp"
+all = len(sys.argv) == 1
 
 # Create the folders and copy the files
 os.mkdir(outfolder + "data")
@@ -21,11 +21,16 @@ shutil.copyfile(extractfolder + "header.bin", outfolder + "header.bin")
 shutil.copyfile(extractfolder + "y7.bin", outfolder + "y7.bin")
 shutil.copyfile(extractfolder + "y9.bin", outfolder + "y9.bin")
 
-if not nfponly:
+if all or "-spc" in sys.argv:
     os.system("python repack_spc.py")
+if all or "-bin" in sys.argv:
     os.system("python repack_bin.py")
+if all or "-3dg" in sys.argv:
     os.system("python repack_3dg.py")
+if all or "-kpc" in sys.argv:
     os.system("python repack_kpc.py")
+if all or "-yce" in sys.argv:
+    os.system("python repack_yce.py")
 
 # Repack NFP
 print("Repacking NFP ...")
