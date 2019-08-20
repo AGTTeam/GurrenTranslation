@@ -9,6 +9,26 @@ bincodes = [0x09, 0x0A, 0x20, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x42, 0x43, 0x
 table = {}
 
 
+class YCETexture:
+    width = 0
+    height = 0
+    offset = 0
+    size = 0
+    oamnum = 0
+    oamsize = 0
+    tilesize = 0
+    paloffset = 0
+    oams = []
+
+
+class OAM:
+    x = 0
+    y = 0
+    width = 0
+    height = 0
+    offset = 0
+
+
 def toHex(byte):
     hexstr = hex(byte)[2:].upper()
     if len(hexstr) == 1:
