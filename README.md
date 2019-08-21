@@ -20,6 +20,7 @@ Control codes are written as &lt;XX&gt; and they should be kept. &lt;0A&gt; is a
 The bin_input file contains more codes in the format of UNK(XXXX), these should always be kept  
 A "|" can be used to make a single-line message become a two-lines message  
 If the translated line starts with "<<", the line will be padded with spaces at the beginning and end up to 20 characters, for buttons with centered kanji  
+">>" can be used to add a new dialogue box after the current line. Example: "しっかり掘れ～～！=Keep digging!>>Testing>>More than one"  
 Comments can be added at the end of the lines by using #  
 # Image Editing
 Edit the images in the "work_3DG", "work_KPC" and "work_YCE" folders. The palette on the right should be followed but the repacker will try to approximate other colors to the nearest one  
