@@ -23,12 +23,13 @@ with codecs.open(outfile, "w", "utf-8") as out:
                     if byte == 0x10:
                         try:
                             sjis = common.readShiftJIS(f)
-                            if sjis != "":
+                            if sjis != "" and sjis not in foundstrings:
                                 if common.debug:
                                     print(" Found string at " + str(pos) + " with length " + str(len(sjis)))
                                 if first:
                                     first = False
                                     out.write("!FILE:" + file + "\n")
+                                foundstrings.append(sjis)
                                 out.write(sjis + "=\n")
                             f.seek(9, 1)
                         except UnicodeDecodeError:
