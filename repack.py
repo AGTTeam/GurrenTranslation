@@ -9,7 +9,7 @@ outfolder = "repack/"
 if os.path.isdir(outfolder):
     shutil.rmtree(outfolder)
 os.mkdir(outfolder)
-all = len(sys.argv) == 1
+all = len(sys.argv) == 1 or (len(sys.argv) == 2 and sys.argv[1] == "-deb")
 
 # Create the folders and copy the files
 os.mkdir(outfolder + "data")
@@ -31,6 +31,11 @@ if all or "-kpc" in sys.argv:
     os.system("python repack_kpc.py")
 if all or "-yce" in sys.argv:
     os.system("python repack_yce.py")
+
+if "-deb" in sys.argv:
+    shutil.copyfile("extract_NFP/SPC.NFP/S_DEBUG.SPC", infolder + "SPC.NFP/S_MAIN.SPC")
+else:
+    shutil.copyfile("extract_NFP/SPC.NFP/S_MAIN.SPC", infolder + "SPC.NFP/S_MAIN.SPC")
 
 # Repack NFP
 print("Repacking NFP ...")
