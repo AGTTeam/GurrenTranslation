@@ -87,12 +87,10 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                                     splitstr = newsjis.split("|")
                                     newsjis = splitstr[0]
                                     nextstr = splitstr[1]
-                                else:
-                                    # Otherwise, change a byte to 2
-                                    newsjis = newsjis.replace("|", "<0A>")
-                                    f.seek(-28, 1)
-                                    common.writeByte(f, 2)
-                                    f.seek(27, 1)
+                                newsjis = newsjis.replace("|", "<0A>")
+                                f.seek(-28, 1)
+                                common.writeByte(f, 2)
+                                f.seek(27, 1)
                             newlen = common.writeShiftJIS(f, newsjis)
                             lendiff = newlen - oldlen
                             if lendiff != 0:
