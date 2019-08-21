@@ -74,7 +74,11 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                             else:
                                 newsjis = nextstr
                                 nextstr = ""
-
+                            # If the string starts with <<, pad it with spaces
+                            if newsjis.startswith("<<"):
+                                newsjis = newsjis[2:]
+                                pad = " " * ((20 - len(newsjis)) // 2)
+                                newsjis = pad + newsjis + pad
                             # If the string contains a |, try to turn the string into a 2-lines message
                             if newsjis.find("|") > 0:
                                 # First, search if we have an empty string after
