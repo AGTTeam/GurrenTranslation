@@ -2,7 +2,7 @@ import os
 import codecs
 import common
 
-infolder = "work_NFP/SPC.NFP/"
+infolder = "extract_NFP/SPC.NFP/"
 outfile = "spc_input.txt"
 
 with codecs.open(outfile, "w", "utf-8") as out:
@@ -16,22 +16,28 @@ with codecs.open(outfile, "w", "utf-8") as out:
             f.seek(12)  # "SCRP" + filesize + "CODE"
             codesize = common.readInt(f)
             if codesize > 10:
-                while f.tell() < 16 + codesize - 4:
+                f.seek(6, 1)
+                while f.tell() < 16 + codesize - 2:
                     pos = f.tell()
-                    # Try to read a pointer
-                    pointer = common.readInt(f)
-                    if pointer not in foundstrings and pointer > 0 and pointer < codesize:
-                        # Found a pointer, check if it points to a string
-                        f.seek(pointer + 16)
-                        if common.isStringPointer(f):
-                            # Found a string
-                            foundstrings.append(pointer)
+                    byte = common.readByte(f)
+                    if byte == 0x10:
+                        try:
                             sjis = common.readShiftJIS(f)
                             if sjis != "":
                                 if common.debug:
-                                    print(" Found string at " + str(pointer + 16) + " with length " + str(len(sjis)))
+                                    print(" Found string at " + str(pos) + " with length " + str(len(sjis)))
                                 if first:
                                     first = False
                                     out.write("!FILE:" + file + "\n")
                                 out.write(sjis + "=\n")
-                    f.seek(pos + 1)
+                            f.seek(9, 1)
+                        except UnicodeDecodeError:
+                            print(" [ERROR] Unicode")
+                    elif byte == 0x15:
+                        f.seek(1, 1)
+                        bytelen = common.readByte(f)
+                        f.seek(8 * bytelen, 1)
+                    elif byte in common.spccodes:
+                        f.seek(common.spccodes[byte], 1)
+                    elif common.debug:
+                        print(" Unknown byte " + common.toHex(byte) + " at " + str(pos))

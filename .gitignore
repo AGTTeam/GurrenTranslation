@@ -5,5 +5,7 @@ extract_NFP
 work_*
 repack
 *.nds
+*.idb
 *_input*.txt
 *_data.txt
+analyze_spc.txt

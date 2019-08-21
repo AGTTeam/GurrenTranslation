@@ -28,3 +28,4 @@ Run "repack.py" to generate "rom_patched.nds"
 If you only want to repack NFP and patch the rom, you can use "repack.py -nfp"  
 You can also use the following parameters to only repack specific types: -spc, -bin, -3dg, -kpc, -yce  
 For example "repack.py -spc -bin" will only repack SPC, BIN, NFP and patch the rom  
+The "-deb" parameter is also available and when used it will send the player to the Debug Map when starting a new game  

@@ -6,6 +6,12 @@ debug = False
 warning = True
 codes = [0x09, 0x0A, 0x20, 0xA5]
 bincodes = [0x09, 0x0A, 0x20, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x42, 0x43, 0x64, 0xA5]
+spccodes = {
+    0x28: 1, 0x2A: 1, 0x54: 1, 0x58: 1, 0x59: 1, 0x5A: 1, 0x5B: 1, 0x5C: 1, 0x5D: 1, 0x8F: 1,
+    0x20: 2, 0x50: 2, 0x52: 2, 0x72: 2, 0x73: 2, 0x79: 2,
+    0x11: 4, 0x29: 4, 0x80: 4, 0x81: 4, 0x3A: 4,
+    0x12: 5, 0x21: 5, 0x31: 5, 0x33: 5
+}
 table = {}
 
 
@@ -68,6 +74,17 @@ def readString(f, length):
         if byte == 0x82 or byte == 0x86:
             byte = 0x20
         if byte != 0:
+            str += chr(byte)
+    return str
+
+
+def readNullString(f):
+    str = ""
+    while True:
+        byte = readByte(f)
+        if byte == 0:
+            break
+        else:
             str += chr(byte)
     return str
 
@@ -198,16 +215,6 @@ def writeShiftJIS(f, str, writelen=True):
     return strlen + 1
 
 
-def writePointer(f, pointer, pointerdiff):
-    newpointer = pointer
-    for k, v in pointerdiff.items():
-        if k < pointer:
-            newpointer += v
-    if debug:
-        print("  Shifted pointer " + str(pointer+16) + " to " + str(newpointer+16))
-    writeInt(f, newpointer)
-
-
 def isStringPointer(f):
     readByte(f)
     b2 = readByte(f)
@@ -224,7 +231,7 @@ def getSection(f, title):
     ret = {}
     found = title == ""
     for line in f:
-        line = line.strip()
+        line = line.strip("\r\n")
         if not found and line.startswith("!FILE:" + title):
             found = True
         elif found:
