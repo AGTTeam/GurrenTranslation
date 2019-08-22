@@ -12,7 +12,6 @@ os.mkdir(dgout)
 dgfile = "3dg_data.txt"
 
 print("Repacking 3DG ...")
-
 with open(dgfile, "r") as dg:
     for file in os.listdir(dgin):
         section = common.getSection(dg, file)
@@ -33,7 +32,7 @@ with open(dgfile, "r") as dg:
                 paloffset = int(texdata[7])
             if os.path.isfile(dgwork + pngname):
                 if common.debug:
-                    print(" Repacking " + pngname + " ...")
+                    print(" Repacking", pngname, "...")
                 img = Image.open(dgwork + pngname)
                 img = img.convert("RGBA")
                 pixels = img.load()

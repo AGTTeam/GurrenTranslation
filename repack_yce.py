@@ -11,12 +11,11 @@ ycework = "work_YCE/"
 yceout = "work_NFP/NFP2D.NFP/"
 ycefile = "yce_data.txt"
 
-print("Repacking YCE ...")
-
 sections = {}
 with open(ycefile, "r") as yce:
     sections = common.getSection(yce, "")
 
+print("Repacking YCE ...")
 for file in os.listdir(ycein):
     if not file.endswith(".YCE"):
         continue
@@ -27,7 +26,7 @@ for file in os.listdir(ycein):
     if not os.path.isfile(ycework + pngname):
         continue
     if common.debug:
-        print(" Repacking " + pngname + " ...")
+        print(" Repacking", file, "...")
     imgin = Image.open(ycework + pngname)
     imgin = imgin.convert("RGBA")
     pixels = imgin.load()

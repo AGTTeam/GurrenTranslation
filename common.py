@@ -190,9 +190,9 @@ def writeShiftJIS(f, str, writelen=True):
                 if bigram not in table:
                     if warning:
                         try:
-                            print(" [WARNING] Bigram not found: " + bigram)
+                            print(" [WARNING] Bigram not found:", bigram, "in string", str)
                         except UnicodeEncodeError:
-                            print(" [WARNING] Bigram not found")
+                            print(" [WARNING] Bigram not found in string", str)
                     bigram = "  "
                 f.write(bytes.fromhex(table[bigram]))
                 strlen += 2
@@ -299,7 +299,7 @@ def getPaletteIndex(palette, color, fixtrasp=False):
     if palette[0][0] == color[0] and palette[0][1] == color[1] and palette[0][2] == color[2]:
         return 0
     if debug:
-        print("  Color " + str(color) + " not found, finding closest color ...")
+        print("  Color", color, "not found, finding closest color ...")
     mindist = 0xFFFFFFFF
     disti = 0
     for i in range(1, len(palette)):
@@ -308,7 +308,7 @@ def getPaletteIndex(palette, color, fixtrasp=False):
             mindist = distance
             disti = i
     if debug:
-        print("  Closest color: " + str(palette[disti]))
+        print("  Closest color:", palette[disti])
     return disti
 
 
@@ -348,9 +348,9 @@ def decompress(f, size):
     length = header >> 8
     type = (header >> 4) & 0xF
     if debug:
-        print("  Header: " + hex(header) + " length: " + str(length) + " type: " + str(type))
+        print("  Header:", toHex(header), "length:", length, "type:", type)
     if type != 1:
-        print("  [ERROR] Unknown compression type " + str(type))
+        print("  [ERROR] Unknown compression type", type)
         return bytes()
     dout = bytearray()
     while len(dout) < length:

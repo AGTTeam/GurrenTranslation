@@ -5,11 +5,12 @@ import common
 infolder = "extract_NFP/SPC.NFP/"
 outfile = "spc_input.txt"
 
+print("Extracting SPC...")
 with codecs.open(outfile, "w", "utf-8") as out:
     for file in os.listdir(infolder):
         if not file.endswith(".SPC"):
             continue
-        print("Processing " + file + " ...")
+        print("Processing", file, "...")
         first = True
         foundstrings = []
         with open(infolder + file, "rb") as f:
@@ -25,7 +26,7 @@ with codecs.open(outfile, "w", "utf-8") as out:
                             sjis = common.readShiftJIS(f)
                             if sjis != "" and sjis not in foundstrings:
                                 if common.debug:
-                                    print(" Found string at " + str(pos) + " with length " + str(len(sjis)))
+                                    print(" Found string at", pos, "with length", len(sjis))
                                 if first:
                                     first = False
                                     out.write("!FILE:" + file + "\n")
@@ -33,7 +34,7 @@ with codecs.open(outfile, "w", "utf-8") as out:
                                 out.write(sjis + "=\n")
                             f.seek(9, 1)
                         except UnicodeDecodeError:
-                            print(" [ERROR] Unicode")
+                            print(" [ERROR] UnicodeDecodeError")
                     elif byte == 0x15:
                         f.seek(1, 1)
                         bytelen = common.readByte(f)
@@ -41,4 +42,4 @@ with codecs.open(outfile, "w", "utf-8") as out:
                     elif byte in common.spccodes:
                         f.seek(common.spccodes[byte], 1)
                     elif common.debug:
-                        print(" Unknown byte " + common.toHex(byte) + " at " + str(pos))
+                        print(" Unknown byte", common.toHex(byte), "at", pos)

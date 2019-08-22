@@ -17,13 +17,12 @@ def convertPointer(pointer, pointerdiff):
         if k < pointer:
             newpointer += v
     if common.debug and newpointer != pointer:
-        print("   Shifted pointer " + str(pointer+16) + " to " + str(newpointer+16))
+        print("   Shifted pointer", pointer + 16, "to", newpointer + 16)
     return newpointer
 
 
 print("Repacking SPC ...")
 common.loadTable()
-
 with codecs.open(spcfile, "r", "utf-8") as spc:
     for file in os.listdir(spcin):
         section = common.getSection(spc, file)
@@ -33,7 +32,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
         # Uncomment this line to enable the debug mode for only a specific file
         # common.debug = (file == "EV_004.SPC")
         # if common.debug:
-        print(" Repacking " + file + " ...")
+        print(" Repacking", file, "...")
         codepointers = []
         pointerdiff = {}
         funcpointers = {"MswMess": [], "MswHit": []}
@@ -65,7 +64,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                         sjis = common.readShiftJIS(fin)
                         if (sjis != "" and sjis in section) or nextstr is not None:
                             if common.debug:
-                                print("  Found SJIS string at " + str(strpos + 16))
+                                print("  Found SJIS string at", strpos + 16)
                             # Check if we have a nextstr to inject instead of using the section
                             if nextstr is None:
                                 if section[sjis] == "!":
@@ -113,12 +112,12 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                             lendiff = newlen - oldlen
                             if lendiff != 0:
                                 if common.debug:
-                                    print("   Adding " + str(lendiff) + " at " + str(strpos))
+                                    print("   Adding", lendiff, "at", strpos)
                                 pointerdiff[strpos - 16] = lendiff
                             fin.seek(1, 1)
                         else:
                             if common.debug:
-                                print("  Found ASCII or unaltered string at " + str(strpos + 16))
+                                print("  Found ASCII or unaltered string at", strpos + 16)
                             fin.seek(strpos)
                             f.write(fin.read(oldlen + 2))
                         f.write(fin.read(2))
@@ -173,7 +172,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                                 common.writeUInt(f, strpointer2 - 16 - 4)
                                 endpointer = f.tell()
                                 if common.debug:
-                                    print("   Adding new str " + str(endpointer - startpointer) + " at " + str(startpointeri))
+                                    print("   Adding new str", endpointer - startpointer, "at", startpointeri)
                                 if startpointeri - 16 not in pointerdiff:
                                     pointerdiff[startpointeri - 16] = 0
                                 pointerdiff[startpointeri - 16] += endpointer - startpointer
@@ -193,7 +192,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                             codepointers.append(f.tell() + 1)
                         f.write(fin.read(common.spccodes[byte]))
                     elif common.debug:
-                        print(" Unknown byte " + common.toHex(byte) + " at " + str(pos))
+                        print(" Unknown byte", common.toHex(byte), "at", pos)
                 common.writeByte(f, 0x8F)
                 common.writeByte(f, 0x00)
                 common.writeByte(f, 0x00)
@@ -225,7 +224,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                     common.writeString(f, function)
                     common.writeZero(f, 1)
                     if common.debug:
-                        print("  Found function: " + function)
+                        print("  Found function:", function)
                     # Read the pointers until we find 0
                     while True:
                         pointer = common.readInt(fin)
@@ -237,7 +236,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                             if function in funcpointers and len(funcpointers[function]) > 0:
                                 for newpointer in funcpointers[function]:
                                     if common.debug:
-                                        print("  " + function + " new:" + str(newpointer) + " poi:" + str(pointer))
+                                        print("  ", function, "new:", newpointer, "poi:", pointer)
                                     if pointer > newpointer:
                                         common.writeUInt(f, newpointer)
                                         funcpointers[function].remove(newpointer)

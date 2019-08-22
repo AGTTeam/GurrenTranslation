@@ -10,12 +10,11 @@ if os.path.isdir(outfolder):
     shutil.rmtree(outfolder)
 os.mkdir(outfolder)
 
+print("Extracting KPC...")
 for file in os.listdir(infolder):
     if not file.endswith(".KPC"):
         continue
-    # if file != "M09_2_B02.KPC":
-    #     continue
-    print("Processing " + file + " ...")
+    print("Processing", file, "...")
     with open(infolder + file, "rb") as f:
         # Read header
         f.seek(4)
@@ -37,12 +36,12 @@ for file in os.listdir(infolder):
         palsize = common.readUInt(f)
         paloffset = common.readUInt(f)
         if common.debug:
-            print(" width: " + str(width) + " height: " + str(height))
-            print(" mapsize: " + str(mapsize) + " mapoffset: " + str(mapoffset))
-            print(" tilesize: " + str(tilesize) + " tileoffset: " + str(tileoffset))
-            print(" palsize: " + str(palsize) + " paloffset: " + str(paloffset))
-            print(" palcompressed: " + str(palcompressed) + " mapcompressed: " + str(mapcompressed) + " tilecompressed: " + str(tilecompressed))
-            print(" bits: " + str(bits) + " unk: " + str(unk))
+            print(" width:", width, "height:", height)
+            print(" mapsize:", mapsize, "mapoffset:", mapoffset)
+            print(" tilesize:", tilesize, "tileoffset:", tileoffset)
+            print(" palsize:", palsize, "paloffset:", paloffset)
+            print(" palcompressed:", palcompressed, "mapcompressed:", mapcompressed, "# TEMP: ilecompressed:", tilecompressed)
+            print(" bits:", bits, "unk:", unk)
         # Read palette
         f.seek(paloffset)
         palettes = []
@@ -57,7 +56,7 @@ for file in os.listdir(infolder):
                 palette.append(common.readPalette(p))
             palettes.append(palette)
         if common.debug:
-            print(" Loaded " + str(len(palettes)) + " palettes")
+            print(" Loaded", len(palettes), "palettes")
         # Export the image
         img = Image.new("RGBA", (width + 40, max(height, ((len(palettes) * 16) // 8) * 5)), (0, 0, 0, 0))
         pixels = img.load()
@@ -76,7 +75,7 @@ for file in os.listdir(infolder):
             tile = map & 0x3FF
             maps.append((pal, xflip, yflip, tile))
         if common.debug:
-            print(" Loaded " + str(len(maps)) + " maps")
+            print(" Loaded", len(maps), "maps")
         # Read tile data
         tiles = []
         f.seek(tileoffset)
@@ -92,7 +91,7 @@ for file in os.listdir(infolder):
                 singletile.append(index)
             tiles.append(singletile)
         if common.debug:
-            print(" Loaded " + str(len(tiles)) + " tiles")
+            print(" Loaded", len(tiles), "tiles")
         # Draw the image
         tileheight = tilewidth = 8
         i = j = 0
@@ -114,7 +113,7 @@ for file in os.listdir(infolder):
                         sub = ImageOps.mirror(sub)
                     img.paste(sub, box=(j, i))
             except (KeyError, IndexError):
-                print("  [ERROR] Tile " + str(map[3]) + " not found")
+                print("  [ERROR] Tile", map[3], "not found")
             j += tilewidth
             if j >= width:
                 j = 0

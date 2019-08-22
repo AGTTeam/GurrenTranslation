@@ -13,12 +13,12 @@ if os.path.isdir(outfolder):
     shutil.rmtree(outfolder)
 os.mkdir(outfolder)
 
-
+print("Extracting YCE...")
 with open(outfile, "w") as yce:
     for file in os.listdir(infolder):
         if not file.endswith(".YCE"):
             continue
-        print("Processing " + file + " ...")
+        print("Processing", file, "...")
         with open(infolder + file, "rb") as f:
             # Read header
             f.seek(8)
@@ -26,7 +26,7 @@ with open(outfile, "w") as yce:
             f.seek(4, 1)  # Always 0
             f.seek(4, 1)  # Always 24
             animoffset = common.readUInt(f)  # Animation data offset
-            unk1 = common.readUInt(f)  # ?
+            unk = common.readUInt(f)  # ?
             num = common.readUInt(f)  # Number of images
             images = []
             for i in range(num):
@@ -35,22 +35,22 @@ with open(outfile, "w") as yce:
                 images.append(img)
             for img in images:
                 if common.debug:
-                    print(" Reading image at offset " + str(img.offset) + "...")
+                    print(" Reading image at offset", img.offset, "...")
                 f.seek(img.offset)
                 img.size = common.readUInt(f)  # Image data size
                 constant = common.readUInt(f)  # 0x1C
                 if constant != 0x1C and common.debug:
-                    print("  Constant is not 0x1C! " + common.toHex(constant))
+                    print("  Constant is not 0x1C!", common.toHex(constant))
                 img.oamnum = common.readUInt(f)  # Number of OAMs
                 img.oamsize = common.readUInt(f)  # OAM data size
                 img.tilesize = common.readUInt(f)  # Tile data size
                 img.paloffset = common.readUInt(f) + img.offset  # Palette data offset (relative to offset)
                 constant = common.readUInt(f)  # 0x01
                 if constant != 0x01 and common.debug:
-                    print("  Constant 2 is not 0x01! " + common.toHex(constant))
+                    print("  Constant 2 is not 0x01!", common.toHex(constant))
                 if common.debug:
-                    print("  size: " + str(img.size) + "  oamnum: " + str(img.oamnum) + " oamsize: " + str(img.oamsize))
-                    print("  tilesize: " + str(img.tilesize) + "  paloffset: " + str(img.paloffset))
+                    print("  size:", img.size, "oamnum:", img.oamnum, "oamsize:", img.oamsize)
+                    print("  tilesize:", img.tilesize, "paloffset:", img.paloffset)
                 img.oams = []
                 for j in range(img.oamnum):
                     oam = common.OAM()
@@ -59,13 +59,13 @@ with open(outfile, "w") as yce:
                     for x in range(8):
                         unkbyte = common.readByte(f)
                         if unkbyte != 0x00 and common.debug:
-                            print("  unkbyte " + str(x) + " is not 0x00! " + common.toHex(unkbyte))
+                            print("  unkbyte", x, "is not 0x00!", common.toHex(unkbyte))
                     shape = common.readByte(f)  # NCER OBJ Shape
                     size = common.readByte(f)  # NCER OBJ Size
                     for x in range(2):
                         unkbyte = common.readByte(f)
                         if unkbyte != 0x00 and common.debug:
-                            print("  unkbyte2 " + str(x) + " is not 0x00! " + common.toHex(unkbyte))
+                            print("  unkbyte2", x, "is not 0x00!", common.toHex(unkbyte))
                     oam.offset = common.readUInt(f)
                     # Table from http://www.romhacking.net/documents/%5B469%5Dnds_formats.htm#NCER
                     if shape == 0:
@@ -112,8 +112,8 @@ with open(outfile, "w") as yce:
                     oam.x -= minx
                     oam.y -= miny
                 if common.debug:
-                    print("  width: " + str(img.width) + " height: " + str(img.height))
-                    print("  oams: " + str(img.oams))
+                    print("  width:", img.width, "height:", img.height)
+                    print("  oams:", img.oams)
             # Create image
             width = height = 0
             for img in images:

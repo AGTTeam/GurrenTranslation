@@ -6,6 +6,7 @@ outfolder = "extract/"
 if not os.path.isfile("ndstool.exe"):
     print("[ERROR] ndstool.exe not found")
 else:
+    print("Extracting ROM...")
     if os.path.isdir(outfolder):
         shutil.rmtree(outfolder)
     os.mkdir(outfolder)

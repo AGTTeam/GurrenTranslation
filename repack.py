@@ -46,7 +46,7 @@ for file in os.listdir(infolder):
     datapos = 80 + (24 * filenum)
     # The file list is padded with 0s if it doesn't start at a multiple of 16
     datapos += datapos % 16
-    print(" Repacking " + file + " with " + str(filenum) + " files ...")
+    print(" Repacking", file, "with", filenum, "files ...")
     with open(outfolder + "data/" + file, "wb") as f:
         common.writeString(f, "NFP2.0 (c)NOBORI 1997-2006")
         common.writeZero(f, 26)
@@ -69,9 +69,9 @@ for file in os.listdir(infolder):
             datapos += filesize
 
 # Repack ROM
-print("Repacking ROM ...")
 if not os.path.isfile("ndstool.exe"):
     print("[ERROR] ndstool.exe not found")
 else:
+    print("Repacking ROM ...")
     os.system("ndstool -c rom_patched.nds -9 repack/arm9.bin -7 repack/arm7.bin -y9 repack/y9.bin -y7 repack/y7.bin -t repack/banner.bin -h repack/header.bin -d repack/data -y repack/overlay")
-    print("Done!")
+    print("All done!")

@@ -12,7 +12,6 @@ if os.path.isdir(kpcout):
 os.mkdir(kpcout)
 
 print("Repacking KPC ...")
-
 for file in os.listdir(kpcin):
     if not file.endswith(".KPC") and not file.endswith(".KPC"):
         shutil.copyfile(kpcin + file, kpcout + file)
@@ -21,7 +20,7 @@ for file in os.listdir(kpcin):
         shutil.copyfile(kpcin + file, kpcout + file)
     else:
         if common.debug:
-            print("Processing " + file + " ...")
+            print("Processing", file, "...")
         with open(kpcin + file, "rb") as fin:
             with open(kpcout + file, "wb") as f:
                 # Find palette offset
@@ -63,7 +62,7 @@ for file in os.listdir(kpcin):
                     pal = common.findBestPalette(palettes, tilecolors)
                     tile = []
                     for tilecolor in tilecolors:
-                        # Fix transparent for EQ_M0* files since they palette colors 0 and 1 are the same.
+                        # Fix transparency for EQ_M0* files since their palette colors 0 and 1 are the same.
                         tile.append(common.getPaletteIndex(palettes[pal], tilecolor, file.startswith("EQ_M0")))
                     # Search for a repeated tile
                     found = -1
