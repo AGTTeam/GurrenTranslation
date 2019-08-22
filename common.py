@@ -110,7 +110,11 @@ def readShiftJIS(f):
                 i += 1
             else:
                 f.seek(-1, 1)
-                sjis += f.read(2).decode("shift-jis").replace("〜", "～")
+                try:
+                    sjis += f.read(2).decode("shift-jis").replace("〜", "～")
+                except UnicodeDecodeError:
+                    print("[ERROR] UnicodeDecodeError")
+                    sjis += "|"
                 i += 2
         return sjis
     return ""
@@ -151,6 +155,7 @@ def writeShiftJIS(f, str, writelen=True):
             writeShort(f, 1)
         writeByte(f, 0)
         return 1
+    str = str.replace("’", "'").replace("“", "\"").replace("”", "\"")
     i = 0
     strlen = 0
     if writelen:
@@ -181,7 +186,6 @@ def writeShiftJIS(f, str, writelen=True):
                     bigram = char + " "
                 else:
                     bigram = char + str[i+1]
-                bigram = bigram.replace("’", "'").replace("“", "\"").replace("”", "\"")
                 i += 2
                 if bigram not in table:
                     if warning:

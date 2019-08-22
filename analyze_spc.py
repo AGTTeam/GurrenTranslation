@@ -32,6 +32,7 @@ def readBytes(f, n):
 
 
 with codecs.open(outfile, "w", "utf-8") as out:
+    out.write(sys.argv[1] + "\n")
     with open(infolder + sys.argv[1], "rb") as f:
         f.seek(12)  # "SCRP" + filesize + "CODE"
         codesize = common.readInt(f)
