@@ -12,7 +12,6 @@ with codecs.open(outfile, "w", "utf-8") as out:
             continue
         print("Processing", file, "...")
         first = True
-        foundstrings = []
         with open(infolder + file, "rb") as f:
             f.seek(12)  # "SCRP" + filesize + "CODE"
             codesize = common.readInt(f)
@@ -24,13 +23,12 @@ with codecs.open(outfile, "w", "utf-8") as out:
                     if byte == 0x10:
                         try:
                             sjis = common.readShiftJIS(f)
-                            if sjis != "" and sjis not in foundstrings:
+                            if sjis != "" and sjis:
                                 if common.debug:
                                     print(" Found string at", pos, "with length", len(sjis))
                                 if first:
                                     first = False
                                     out.write("!FILE:" + file + "\n")
-                                foundstrings.append(sjis)
                                 out.write(sjis + "=\n")
                             f.seek(9, 1)
                         except UnicodeDecodeError:
