@@ -23,7 +23,7 @@ with codecs.open(outfile, "w", "utf-8") as out:
                     if byte == 0x10:
                         try:
                             sjis = common.readShiftJIS(f)
-                            if sjis != "" and sjis:
+                            if sjis != "":
                                 if common.debug:
                                     print(" Found string at", pos, "with length", len(sjis))
                                 if first:
