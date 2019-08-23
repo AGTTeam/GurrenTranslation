@@ -134,8 +134,6 @@ with open(outfile, "w") as dg:
             # Traverse texture
             for texi in range(len(textures)):
                 tex = textures[texi]
-                if tex.format == 5:
-                    continue
                 print("  Exporting", tex.name, "...")
                 palette = None
                 if tex.format != 7:
@@ -149,6 +147,9 @@ with open(outfile, "w") as dg:
                 else:
                     texdata = (tex.format, tex.width, tex.height, tex.size, tex.offset)
                 dg.write(tex.name + "=" + ",".join(str(item) for item in texdata) + "\n")
+                # [TODO] Disable format 5 for now
+                if tex.format == 5:
+                    continue
                 if tex.format == 5:
                     r = tex.size >> 1
                     f.seek(spdataoffset)
