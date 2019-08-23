@@ -1,5 +1,6 @@
 import struct
 import os
+import codecs
 import math
 
 debug = False
@@ -155,7 +156,6 @@ def writeShiftJIS(f, str, writelen=True):
             writeShort(f, 1)
         writeByte(f, 0)
         return 1
-    str = str.replace("’", "'").replace("“", "\"").replace("”", "\"")
     i = 0
     strlen = 0
     if writelen:
@@ -166,7 +166,7 @@ def writeShiftJIS(f, str, writelen=True):
         while i < len(str):
             if i < len(str) - 1 and str[i+1] == "<":
                 str = str[:i+1] + " " + str[i+1:]
-            if i < len(str) - 4 and str[i+1] == "U" and str[i+2] == "N" and str[i+3] == "K" and str[i+4] == "(":
+            elif i < len(str) - 4 and str[i+1:i+4] == "UNK(":
                 str = str[:i+1] + " " + str[i+1:]
             char = str[i]
             if char == "<":
@@ -174,7 +174,7 @@ def writeShiftJIS(f, str, writelen=True):
                 f.write(bytes.fromhex(code))
                 i += 4
                 strlen += 1
-            elif char == "U" and i < len(str) - 4 and str[i+1] == "N" and str[i+2] == "K" and str[i+3] == "(":
+            elif char == "U" and i < len(str) - 4 and str[i+1:i+3] == "NK(":
                 code = str[i+4] + str[i+5]
                 f.write(bytes.fromhex(code))
                 code = str[i+6] + str[i+7]
@@ -182,7 +182,7 @@ def writeShiftJIS(f, str, writelen=True):
                 i += 9
                 strlen += 2
             else:
-                if i+1 == len(str):
+                if i + 1 == len(str):
                     bigram = char + " "
                 else:
                     bigram = char + str[i+1]
@@ -239,12 +239,12 @@ def getSection(f, title):
         if not found and line.startswith("!FILE:" + title):
             found = True
         elif found:
-            if line.startswith("!FILE:"):
+            if title != "" and line.startswith("!FILE:"):
                 break
             elif line.find("=") > 0:
                 split = line.split("=", 1)
                 split[1] = split[1].split("#")[0]
-                ret[split[0]] = split[1]
+                ret[split[0]] = split[1].replace("’", "'").replace("‘", "'").replace("“", "\"").replace("”", "\"").replace("…", "...").replace("—", "-").replace("～", "~").replace("	", " ")
     return ret
 
 
@@ -376,6 +376,6 @@ def decompress(f, size):
 
 def loadTable():
     if os.path.isfile("table.txt"):
-        with open("table.txt", "r") as ft:
+        with codecs.open("table.txt", "r", "utf-8") as ft:
             for line in ft:
                 table[line[:2]] = line[3:7]

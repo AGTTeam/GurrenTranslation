@@ -21,6 +21,12 @@ shutil.copyfile(extractfolder + "header.bin", outfolder + "header.bin")
 shutil.copyfile(extractfolder + "y7.bin", outfolder + "y7.bin")
 shutil.copyfile(extractfolder + "y9.bin", outfolder + "y9.bin")
 
+# Repack the font
+if not os.path.isfile("NerdFontTerminatoR.exe"):
+    print("[ERROR] NerdFontTerminatoR.exe not found")
+elif all or "-bin" in sys.argv or "-spc" in sys.argv:
+    os.system("python repack_font.py")
+
 if all or "-spc" in sys.argv:
     os.system("python repack_spc.py")
 if all or "-bin" in sys.argv:

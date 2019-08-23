@@ -4,9 +4,7 @@ extract_NFP
 work_*
 repack
 ndstool.exe
-NFTRedit.exe
+NerdFontTerminatoR.exe
 *.nds
 *.idb
 *.txt
-font/dump.bmp
-font/out.bmp
