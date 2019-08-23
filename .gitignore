@@ -1,11 +1,12 @@
 __pycache__
-ndstool.exe
 extract
 extract_NFP
 work_*
 repack
+ndstool.exe
+NFTRedit.exe
 *.nds
 *.idb
-*_input*.txt
-*_data.txt
-analyze_spc.txt
+*.txt
+font/dump.bmp
+font/out.bmp
