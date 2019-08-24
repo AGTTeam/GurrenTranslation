@@ -167,10 +167,10 @@ def writeShiftJIS(f, str, writelen=True):
         while i < len(str):
             if i < len(str) - 1 and str[i+1] == "<":
                 str = str[:i+1] + " " + str[i+1:]
-            elif i < len(str) - 4 and str[i+1:i+4] == "UNK(":
+            elif i < len(str) - 4 and str[i+1:i+5] == "UNK(":
                 str = str[:i+1] + " " + str[i+1:]
             char = str[i]
-            if char == "<" and i < len(str) - 4 and str[i+3] == ">":
+            if char == "<" and i < len(str) - 3 and str[i+3] == ">":
                 try:
                     code = str[i+1] + str[i+2]
                     f.write(bytes.fromhex(code))
@@ -178,7 +178,7 @@ def writeShiftJIS(f, str, writelen=True):
                 except ValueError:
                     print("[ERROR] Invalid escape code", str[i+1], str[i+2])
                 i += 4
-            elif char == "U" and i < len(str) - 4 and str[i+1:i+3] == "NK(":
+            elif char == "U" and i < len(str) - 4 and str[i+1:i+4] == "NK(":
                 code = str[i+4] + str[i+5]
                 f.write(bytes.fromhex(code))
                 code = str[i+6] + str[i+7]
@@ -498,4 +498,4 @@ def drawMappedImage(width, height, mapdata, tiledata, paldata, tilesize=8, bpp=4
     if len(palettes) > 0:
         for i in range(len(palettes)):
             pixels = drawPalette(pixels, palettes[i], width, i * 10)
-    return img
+    return img, maps, tiles

@@ -94,12 +94,12 @@ for k, input in inputs.items():
     while i < len(str):
         if i < len(str) - 1 and str[i+1] == "<":
             str = str[:i+1] + " " + str[i+1:]
-        elif i < len(str) - 4 and str[i+1:i+4] == "UNK(":
+        elif i < len(str) - 4 and str[i+1:i+5] == "UNK(":
             str = str[:i+1] + " " + str[i+1:]
         char = str[i]
-        if char == "<" and i < len(str) - 4 and str[i+3] == ">":
+        if char == "<" and i < len(str) - 3 and str[i+3] == ">":
             i += 4
-        elif char == "U" and i < len(str) - 4 and str[i+1:i+3] == "NK(":
+        elif char == "U" and i < len(str) - 4 and str[i+1:i+4] == "NK(":
             i += 9
         else:
             if i + 1 == len(str):
