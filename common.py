@@ -498,4 +498,4 @@ def drawMappedImage(width, height, mapdata, tiledata, paldata, tilesize=8, bpp=4
     if len(palettes) > 0:
         for i in range(len(palettes)):
             pixels = drawPalette(pixels, palettes[i], width, i * 10)
-    return img, maps, tiles
+    return img
