@@ -88,6 +88,8 @@ with codecs.open(binin, "r", "utf-8") as bin:
     inputs.update(common.getSection(bin, ""))
 for k, input in inputs.items():
     str = "<0A>".join(input.replace("|", "<0A>").split(">>"))
+    if str.startswith("<<"):
+        str = str[2:]
     i = 0
     while i < len(str):
         if i < len(str) - 1 and str[i+1] == "<":
@@ -95,7 +97,7 @@ for k, input in inputs.items():
         elif i < len(str) - 4 and str[i+1:i+4] == "UNK(":
             str = str[:i+1] + " " + str[i+1:]
         char = str[i]
-        if char == "<":
+        if char == "<" and i < len(str) - 4 and str[i+3] == ">":
             i += 4
         elif char == "U" and i < len(str) - 4 and str[i+1:i+3] == "NK(":
             i += 9

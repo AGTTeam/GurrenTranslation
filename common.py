@@ -2,6 +2,7 @@ import struct
 import os
 import codecs
 import math
+from PIL import Image, ImageOps
 
 debug = False
 warning = True
@@ -169,11 +170,14 @@ def writeShiftJIS(f, str, writelen=True):
             elif i < len(str) - 4 and str[i+1:i+4] == "UNK(":
                 str = str[:i+1] + " " + str[i+1:]
             char = str[i]
-            if char == "<":
-                code = str[i+1] + str[i+2]
-                f.write(bytes.fromhex(code))
+            if char == "<" and i < len(str) - 4 and str[i+3] == ">":
+                try:
+                    code = str[i+1] + str[i+2]
+                    f.write(bytes.fromhex(code))
+                    strlen += 1
+                except ValueError:
+                    print("[ERROR] Invalid escape code", str[i+1], str[i+2])
                 i += 4
-                strlen += 1
             elif char == "U" and i < len(str) - 4 and str[i+1:i+3] == "NK(":
                 code = str[i+4] + str[i+5]
                 f.write(bytes.fromhex(code))
@@ -231,20 +235,23 @@ def isStringPointer(f):
 
 
 def getSection(f, title):
-    f.seek(0)
     ret = {}
     found = title == ""
-    for line in f:
-        line = line.strip("\r\n")
-        if not found and line.startswith("!FILE:" + title):
-            found = True
-        elif found:
-            if title != "" and line.startswith("!FILE:"):
-                break
-            elif line.find("=") > 0:
-                split = line.split("=", 1)
-                split[1] = split[1].split("#")[0]
-                ret[split[0]] = split[1].replace("’", "'").replace("‘", "'").replace("“", "\"").replace("”", "\"").replace("…", "...").replace("—", "-").replace("～", "~").replace("	", " ")
+    try:
+        f.seek(0)
+        for line in f:
+            line = line.strip("\r\n")
+            if not found and line.startswith("!FILE:" + title):
+                found = True
+            elif found:
+                if title != "" and line.startswith("!FILE:"):
+                    break
+                elif line.find("=") > 0:
+                    split = line.split("=", 1)
+                    split[1] = split[1].split("#")[0]
+                    ret[split[0]] = split[1].replace("’", "'").replace("‘", "'").replace("“", "\"").replace("”", "\"").replace("…", "...").replace("—", "-").replace("～", "~").replace("	", " ")
+    except UnicodeDecodeError:
+        return ret
     return ret
 
 
@@ -379,3 +386,116 @@ def loadTable():
         with codecs.open("table.txt", "r", "utf-8") as ft:
             for line in ft:
                 table[line[:2]] = line[3:7]
+
+
+def readPaletteData(paldata):
+    palettes = []
+    for j in range(len(paldata) // 32):
+        palette = []
+        for i in range(0, 32, 2):
+            p = struct.unpack("<H", paldata[j * 32 + i:j * 32 + i + 2])[0]
+            palette.append(readPalette(p))
+        palettes.append(palette)
+    if debug:
+        print(" Loaded", len(palettes), "palettes")
+    return palettes
+
+
+def readMappedImage(imgfile, width, height, paldata, fixtrasp=False, tilesize=8):
+    palettes = readPaletteData(paldata)
+    # Read the image
+    img = Image.open(imgfile)
+    img = img.convert("RGBA")
+    pixels = img.load()
+    # Split image into tiles and maps
+    tiles = []
+    maps = []
+    i = j = 0
+    while i < height:
+        tilecolors = []
+        for i2 in range(tilesize):
+            for j2 in range(tilesize):
+                tilecolors.append(pixels[j + j2, i + i2])
+        pal = findBestPalette(palettes, tilecolors)
+        tile = []
+        for tilecolor in tilecolors:
+            tile.append(getPaletteIndex(palettes[pal], tilecolor, fixtrasp))
+        # Search for a repeated tile
+        found = -1
+        for ti in range(len(tiles)):
+            if tiles[ti] == tile:
+                found = ti
+                break
+        if found != -1:
+            maps.append((pal, 0, 0, found))
+        else:
+            tiles.append(tile)
+            maps.append((pal, 0, 0, len(tiles) - 1))
+        j += tilesize
+        if j >= width:
+            j = 0
+            i += tilesize
+    return tiles, maps
+
+
+def drawMappedImage(width, height, mapdata, tiledata, paldata, tilesize=8, bpp=4):
+    palnum = len(paldata) // 32
+    img = Image.new("RGBA", (width + 40, max(height, palnum * 10)), (0, 0, 0, 0))
+    pixels = img.load()
+    # Maps
+    maps = []
+    for i in range(0, len(mapdata), 2):
+        map = struct.unpack("<h", mapdata[i:i+2])[0]
+        pal = (map >> 12) & 0xF
+        xflip = (map >> 10) & 1
+        yflip = (map >> 11) & 1
+        tile = map & 0x3FF
+        maps.append((pal, xflip, yflip, tile))
+    if debug:
+        print(" Loaded", len(maps), "maps")
+    # Tiles
+    tiles = []
+    for i in range(len(tiledata) // (32 if bpp == 4 else 64)):
+        singletile = []
+        for j in range(64):
+            x = i * 64 + j
+            if bpp == 4:
+                index = (tiledata[x // 2] >> ((x % 2) << 2)) & 0x0f
+            else:
+                index = tiledata[x]
+            singletile.append(index)
+        tiles.append(singletile)
+    if debug:
+        print(" Loaded", len(tiles), "tiles")
+    # Palette
+    palettes = readPaletteData(paldata)
+    # Draw the image
+    i = j = 0
+    for map in maps:
+        try:
+            pal = map[0]
+            xflip = map[1]
+            yflip = map[2]
+            tile = tiles[map[3]]
+            for i2 in range(tilesize):
+                for j2 in range(tilesize):
+                    pixels[j + j2, i + i2] = palettes[pal][tile[i2 * tilesize + j2]]
+            # Very inefficient way to flip pixels
+            if xflip or yflip:
+                sub = img.crop(box=(j, i, j + tilesize, i + tilesize))
+                if yflip:
+                    sub = ImageOps.flip(sub)
+                if xflip:
+                    sub = ImageOps.mirror(sub)
+                img.paste(sub, box=(j, i))
+        except (KeyError, IndexError):
+            print("  [ERROR] Tile", map[3], "not found")
+        j += tilesize
+        if j >= width:
+            j = 0
+            i += tilesize
+    # Draw palette
+    if len(palettes) > 0:
+        for i in range(len(palettes)):
+            pixels = drawPalette(pixels, palettes[i], width, i * 10)
+    return img

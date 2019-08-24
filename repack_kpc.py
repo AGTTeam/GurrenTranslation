@@ -1,8 +1,6 @@
 import shutil
 import os
 import common
-import struct
-from PIL import Image
 
 kpcin = "extract_NFP/NFP2D.NFP/"
 kpcwork = "work_KPC/"
@@ -39,46 +37,8 @@ for file in os.listdir(kpcin):
                     paldata = common.decompress(fin, palsize)
                 else:
                     paldata = fin.read(palsize)
-                for j in range(len(paldata) // 32):
-                    palette = []
-                    for i in range(0, 32, 2):
-                        p = struct.unpack("<H", paldata[j*32+i:j*32+i+2])[0]
-                        palette.append(common.readPalette(p))
-                    palettes.append(palette)
-                # Read the image
-                img = Image.open(kpcwork + pngname)
-                img = img.convert("RGBA")
-                pixels = img.load()
-                # Split image into tiles and maps
-                tiles = []
-                maps = []
-                tileheight = tilewidth = 8
-                i = j = 0
-                while i < height:
-                    tilecolors = []
-                    for i2 in range(tileheight):
-                        for j2 in range(tilewidth):
-                            tilecolors.append(pixels[j + j2, i + i2])
-                    pal = common.findBestPalette(palettes, tilecolors)
-                    tile = []
-                    for tilecolor in tilecolors:
-                        # Fix transparency for EQ_M0* files since their palette colors 0 and 1 are the same.
-                        tile.append(common.getPaletteIndex(palettes[pal], tilecolor, file.startswith("EQ_M0")))
-                    # Search for a repeated tile
-                    found = -1
-                    for ti in range(len(tiles)):
-                        if tiles[ti] == tile:
-                            found = ti
-                            break
-                    if found != -1:
-                        maps.append((pal, 0, 0, found))
-                    else:
-                        tiles.append(tile)
-                        maps.append((pal, 0, 0, len(tiles) - 1))
-                    j += tilewidth
-                    if j >= width:
-                        j = 0
-                        i += tileheight
+                # Fix transparency for EQ_M0* files since their palette colors 0 and 1 are the same.
+                tiles, maps = common.readMappedImage(kpcwork + pngname, width, height, paldata, file.startswith("EQ_M0"))
                 # Copy the header
                 fin.seek(0)
                 f.write(fin.read(192))
@@ -93,8 +53,8 @@ for file in os.listdir(kpcin):
                 tilestart = f.tell()
                 for tile in tiles:
                     for i in range(32):
-                        index2 = tile[i*2]
-                        index1 = tile[i*2+1]
+                        index2 = tile[i * 2]
+                        index1 = tile[i * 2 + 1]
                         common.writeByte(f, ((index1) << 4) | index2)
                 tileend = f.tell()
                 common.writeByte(f, 0)
