@@ -463,8 +463,8 @@ def drawMappedImage(width, height, mapdata, tiledata, paldata, tilesize=8, bpp=4
     tiles = []
     for i in range(len(tiledata) // (32 if bpp == 4 else 64)):
         singletile = []
-        for j in range(64):
-            x = i * 64 + j
+        for j in range(tilesize * tilesize):
+            x = i * (tilesize * tilesize) + j
             if bpp == 4:
                 index = (tiledata[x // 2] >> ((x % 2) << 2)) & 0x0f
             else:
@@ -475,6 +475,9 @@ def drawMappedImage(width, height, mapdata, tiledata, paldata, tilesize=8, bpp=4
         print(" Loaded", len(tiles), "tiles")
     # Palette
     palettes = readPaletteData(paldata)
+    pals = []
+    for palette in palettes:
+        pals += palette
     # Draw the image
     i = j = 0
     for map in maps:
@@ -485,7 +488,7 @@ def drawMappedImage(width, height, mapdata, tiledata, paldata, tilesize=8, bpp=4
             tile = tiles[map[3]]
             for i2 in range(tilesize):
                 for j2 in range(tilesize):
-                    pixels[j + j2, i + i2] = palettes[pal][tile[i2 * tilesize + j2]]
+                    pixels[j + j2, i + i2] = pals[16 * pal + tile[i2 * tilesize + j2]]
             # Very inefficient way to flip pixels
             if xflip or yflip:
                 sub = img.crop(box=(j, i, j + tilesize, i + tilesize))

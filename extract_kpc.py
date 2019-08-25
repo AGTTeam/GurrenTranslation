@@ -26,6 +26,8 @@ for file in os.listdir(infolder):
         height = common.readUShort(f) * 8
         mapsize = common.readUInt(f)
         mapoffset = common.readUInt(f)
+        f.seek(5, 1)
+        bpp = 8 if common.readUShort(f) == 1 else 4
         f.seek(92)
         tilesize = common.readUInt(f)
         tileoffset = common.readUInt(f)
@@ -34,11 +36,11 @@ for file in os.listdir(infolder):
         palsize = common.readUInt(f)
         paloffset = common.readUInt(f)
         if common.debug:
-            print(" width:", width, "height:", height)
+            print(" width:", width, "height:", height, "bpp:", bpp)
             print(" mapsize:", mapsize, "mapoffset:", mapoffset)
             print(" tilesize:", tilesize, "tileoffset:", tileoffset)
             print(" palsize:", palsize, "paloffset:", paloffset)
-            print(" palcompressed:", palcompressed, "mapcompressed:", mapcompressed, "# TEMP: ilecompressed:", tilecompressed)
+            print(" palcompressed:", palcompressed, "mapcompressed:", mapcompressed, "tilecompressed:", tilecompressed)
             print(" bits:", bits, "unk:", unk)
         # Read palette
         f.seek(paloffset)
@@ -59,5 +61,5 @@ for file in os.listdir(infolder):
         else:
             tiledata = f.read(tilesize)
         # Draw the image
-        img = common.drawMappedImage(width, height, mapdata, tiledata, paldata)
+        img = common.drawMappedImage(width, height, mapdata, tiledata, paldata, 8, bpp)
         img.save(outfolder + file.replace(".KPC", ".png"), "PNG")
