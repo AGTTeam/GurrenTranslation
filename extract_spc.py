@@ -8,7 +8,7 @@ outfile = "spc_input.txt"
 print("Extracting SPC...")
 with codecs.open(outfile, "w", "utf-8") as out:
     for file in os.listdir(infolder):
-        if not file.endswith(".SPC") or file == "GETPOSX.SPC" or file == "GETPOSY.SPC":
+        if not file.endswith(".SPC"):
             continue
         print("Processing", file, "...")
         first = True
