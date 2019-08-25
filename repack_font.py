@@ -19,9 +19,9 @@ table = "table.txt"
 upperchars = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 lowerchars = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
 numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-punctuation = [" ", "!", "?", "'", "\"", ",", ".", ":", ";", "(", ")", "-", "♪", "☆", "~", "%", "*", "&"]
-customs = ["TEST"]
-all = upperchars + lowerchars + numbers + punctuation
+punctuation = [" ", "!", "?", "'", "\"", ",", ".", ":", ";", "(", ")", "-", "+", "♪", "~", "%", "*", "&"]
+customs = ["STAR"]
+all = upperchars + lowerchars + numbers + punctuation + customs
 
 # X Position in the font.png file
 positions = {}
@@ -32,6 +32,8 @@ for i in range(len(numbers)):
     positions[numbers[i]] = (len(upperchars) * 12) + (i * 6)
 for i in range(len(punctuation)):
     positions[punctuation[i]] = (len(upperchars) * 12) + (len(numbers) * 6) + (i * 6)
+for i in range(len(customs)):
+    positions[customs[i]] = (len(upperchars) * 12) + (len(numbers) * 6) + (len(punctuation) * 6) + i
 
 # Fix the font size before dumping it
 with open(infont, "rb") as font:
@@ -81,6 +83,8 @@ for char1 in lowerchars:
     for char2 in lowerchars:
         if char1 + char2 not in items:
             items.append(char1 + char2)
+for custom in customs:
+    items.append(custom)
 # And a complete one from all the bigrams
 with codecs.open(spcin, "r", "utf-8") as spc:
     inputs = common.getSection(spc, "")
@@ -94,12 +98,14 @@ for k, input in inputs.items():
     while i < len(str):
         if i < len(str) - 1 and str[i+1] == "<":
             str = str[:i+1] + " " + str[i+1:]
-        elif i < len(str) - 4 and str[i+1:i+5] == "UNK(":
+        elif i < len(str) - 4 and (str[i+1:i+5] == "UNK(" or str[i+1:i+5] == "CUS("):
             str = str[:i+1] + " " + str[i+1:]
         char = str[i]
         if char == "<" and i < len(str) - 3 and str[i+3] == ">":
             i += 4
-        elif char == "U" and i < len(str) - 4 and str[i+1:i+4] == "NK(":
+        elif char == "U" and i < len(str) - 4 and str[i:i+4] == "UNK(":
+            i += 9
+        elif char == "C" and i < len(str) - 4 and str[i:i+4] == "CUS(":
             i += 9
         else:
             if i + 1 == len(str):
@@ -125,14 +131,19 @@ fonty = 5644
 x = len(codes) - 1
 tablestr = ""
 for item in reversed(items):
-    for i2 in range(5):
+    if item in customs:
+        for i2 in range(11):
+            for j2 in range(11):
+                pixels[fontx + i2, fonty + j2] = fontpixels[positions[item] + i2, j2]
+    else:
+        for i2 in range(5):
+            for j2 in range(11):
+                pixels[fontx + i2, fonty + j2] = fontpixels[positions[item[0]] + i2, j2]
         for j2 in range(11):
-            pixels[fontx + i2, fonty + j2] = fontpixels[positions[item[0]] + i2, j2]
-    for j2 in range(11):
-        pixels[fontx + 5, fonty + j2] = fontpixels[positions[" "], j2]
-    for i2 in range(5):
-        for j2 in range(11):
-            pixels[fontx + i2 + 6, fonty + j2] = fontpixels[positions[item[1]] + i2, j2]
+            pixels[fontx + 5, fonty + j2] = fontpixels[positions[" "], j2]
+        for i2 in range(5):
+            for j2 in range(11):
+                pixels[fontx + i2 + 6, fonty + j2] = fontpixels[positions[item[1]] + i2, j2]
     fontx -= 13
     if fontx < 0:
         fontx = 197

@@ -167,7 +167,7 @@ def writeShiftJIS(f, str, writelen=True):
         while i < len(str):
             if i < len(str) - 1 and str[i+1] == "<":
                 str = str[:i+1] + " " + str[i+1:]
-            elif i < len(str) - 4 and str[i+1:i+5] == "UNK(":
+            elif i < len(str) - 4 and (str[i+1:i+5] == "UNK(" or str[i+1:i+5] == "CUS("):
                 str = str[:i+1] + " " + str[i+1:]
             char = str[i]
             if char == "<" and i < len(str) - 3 and str[i+3] == ">":
@@ -178,11 +178,15 @@ def writeShiftJIS(f, str, writelen=True):
                 except ValueError:
                     print("[ERROR] Invalid escape code", str[i+1], str[i+2])
                 i += 4
-            elif char == "U" and i < len(str) - 4 and str[i+1:i+4] == "NK(":
+            elif char == "U" and i < len(str) - 4 and str[i:i+4] == "UNK(":
                 code = str[i+4] + str[i+5]
                 f.write(bytes.fromhex(code))
                 code = str[i+6] + str[i+7]
                 f.write(bytes.fromhex(code))
+                i += 9
+                strlen += 2
+            elif char == "C" and i < len(str) - 4 and str[i:i+4] == "CUS(":
+                f.write(bytes.fromhex(table[str[i+4:i+8]]))
                 i += 9
                 strlen += 2
             else:
@@ -385,7 +389,9 @@ def loadTable():
     if os.path.isfile("table.txt"):
         with codecs.open("table.txt", "r", "utf-8") as ft:
             for line in ft:
-                table[line[:2]] = line[3:7]
+                if line.find("=") > 0:
+                    linesplit = line.split("=", 1)
+                    table[linesplit[0]] = linesplit[1]
 
 
 def readPaletteData(paldata):
