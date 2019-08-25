@@ -2,6 +2,7 @@ import shutil
 import os
 import common
 import sys
+import crcmod
 
 extractfolder = "extract/"
 infolder = "work_NFP/"
@@ -75,6 +76,22 @@ for file in os.listdir(infolder):
             with open(subfilepath, "rb") as newf:
                 f.write(newf.read(filesize))
             datapos += filesize
+
+# Patch banner.bin
+print("Patching banner.bin ...")
+title = "Tengen Toppa\nGurren Lagann\nKonami Digital Entertainment"
+with open(outfolder + "banner.bin", "r+b") as f:
+    for i in range(6):
+        # Write new text
+        f.seek(576 + 256 * i)
+        for char in title:
+            common.writeByte(f, ord(char))
+            common.writeByte(f, 0x00)
+        # Compute CRC
+        f.seek(32)
+        crc = crcmod.predefined.mkCrcFun("modbus")(f.read(2080))
+        f.seek(2)
+        common.writeUShort(f, crc)
 
 # Repack ROM
 if not os.path.isfile("ndstool.exe"):
