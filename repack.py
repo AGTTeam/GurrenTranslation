@@ -35,6 +35,8 @@ if all or "-3dg" in sys.argv:
     os.system("python repack_3dg.py")
 if all or "-kpc" in sys.argv:
     os.system("python repack_kpc.py")
+if all or "-vsc" in sys.argv:
+    os.system("python repack_vsc.py")
 if all or "-yce" in sys.argv:
     os.system("python repack_yce.py")
 
