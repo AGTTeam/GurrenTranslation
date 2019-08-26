@@ -253,7 +253,9 @@ def getSection(f, title):
                 elif line.find("=") > 0:
                     split = line.split("=", 1)
                     split[1] = split[1].split("#")[0]
-                    ret[split[0]] = split[1].replace("’", "'").replace("‘", "'").replace("“", "\"").replace("”", "\"").replace("…", "...").replace("—", "-").replace("～", "~").replace("	", " ")
+                    if split[0] not in ret:
+                        ret[split[0]] = []
+                    ret[split[0]].append(split[1].replace("’", "'").replace("‘", "'").replace("“", "\"").replace("”", "\"").replace("…", "...").replace("—", "-").replace("～", "~").replace("	", " "))
     except UnicodeDecodeError:
         return ret
     return ret

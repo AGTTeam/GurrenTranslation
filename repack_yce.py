@@ -20,7 +20,7 @@ for file in os.listdir(ycein):
     if not file.endswith(".YCE"):
         continue
     shutil.copyfile(ycein + file, yceout + file)
-    if file not in sections == 0:
+    if file not in sections:
         continue
     pngname = file.replace(".YCE", ".png")
     if not os.path.isfile(ycework + pngname):
@@ -30,7 +30,7 @@ for file in os.listdir(ycein):
     imgin = Image.open(ycework + pngname)
     imgin = imgin.convert("RGBA")
     pixels = imgin.load()
-    images = pickle.loads(base64.standard_b64decode(sections[file]))
+    images = pickle.loads(base64.standard_b64decode(sections[file][0]))
     currheight = 0
     with open(yceout + file, "r+b") as f:
         for img in images:

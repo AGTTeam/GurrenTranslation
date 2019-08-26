@@ -20,7 +20,7 @@ with open(dgfile, "r") as dg:
             continue
         for k, v in section.items():
             pngname = file.replace(".3DG", "") + "_" + k + ".png"
-            texdata = v.split(",")
+            texdata = v[0].split(",")
             texformat = int(texdata[0])
             texwidth = int(texdata[1])
             texheight = int(texdata[2])

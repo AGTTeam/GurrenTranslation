@@ -91,33 +91,34 @@ with codecs.open(spcin, "r", "utf-8") as spc:
 with codecs.open(binin, "r", "utf-8") as bin:
     inputs.update(common.getSection(bin, ""))
 for k, input in inputs.items():
-    str = "<0A>".join(input.replace("|", "<0A>").split(">>"))
-    if str.startswith("<<"):
-        str = str[2:]
-    i = 0
-    while i < len(str):
-        if i < len(str) - 1 and str[i+1] == "<":
-            str = str[:i+1] + " " + str[i+1:]
-        elif i < len(str) - 4 and (str[i+1:i+5] == "UNK(" or str[i+1:i+5] == "CUS("):
-            str = str[:i+1] + " " + str[i+1:]
-        char = str[i]
-        if char == "<" and i < len(str) - 3 and str[i+3] == ">":
-            i += 4
-        elif char == "U" and i < len(str) - 4 and str[i:i+4] == "UNK(":
-            i += 9
-        elif char == "C" and i < len(str) - 4 and str[i:i+4] == "CUS(":
-            i += 9
-        else:
-            if i + 1 == len(str):
-                bigram = char + " "
+    for str in input:
+        str = "<0A>".join(str.replace("|", "<0A>").split(">>"))
+        if str.startswith("<<"):
+            str = str[2:]
+        i = 0
+        while i < len(str):
+            if i < len(str) - 1 and str[i+1] == "<":
+                str = str[:i+1] + " " + str[i+1:]
+            elif i < len(str) - 4 and (str[i+1:i+5] == "UNK(" or str[i+1:i+5] == "CUS("):
+                str = str[:i+1] + " " + str[i+1:]
+            char = str[i]
+            if char == "<" and i < len(str) - 3 and str[i+3] == ">":
+                i += 4
+            elif char == "U" and i < len(str) - 4 and str[i:i+4] == "UNK(":
+                i += 9
+            elif char == "C" and i < len(str) - 4 and str[i:i+4] == "CUS(":
+                i += 9
             else:
-                bigram = char + str[i+1]
-            i += 2
-            if bigram not in items:
-                if bigram[0] not in all or bigram[1] not in all:
-                    print("Invalid bigram", bigram, "from phrase", str)
+                if i + 1 == len(str):
+                    bigram = char + " "
                 else:
-                    items.append(bigram)
+                    bigram = char + str[i+1]
+                i += 2
+                if bigram not in items:
+                    if bigram[0] not in all or bigram[1] not in all:
+                        print("Invalid bigram", bigram, "from phrase", str)
+                    else:
+                        items.append(bigram)
 
 # Open the images
 img = Image.open(imgfile)

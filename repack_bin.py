@@ -25,15 +25,15 @@ with open(binin, "rb") as fi:
             pos = fi.tell()
             if pos < 1010000 or pos > 1107700:
                 check = common.detectShiftJIS(fi)
-                if check in section and section[check] != "":
+                if check in section and section[check][0] != "":
                     if common.debug:
                         print(" Replacing string at", pos)
                     fo.seek(pos)
-                    common.writeShiftJIS(fo, section[check], False)
+                    common.writeShiftJIS(fo, section[check][0], False)
                     pos = fi.tell() - 1
                     if fo.tell() > pos:
                         common.writeZero(fo, 1)
-                        print(" [ERROR] String", section[check], "is too long.")
+                        print(" [ERROR] String", section[check][0], "is too long.")
                     else:
                         common.writeZero(fo, pos - fo.tell())
             fi.seek(pos + 1)

@@ -65,11 +65,12 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                                 print("  Found SJIS string at", strpos + 16)
                             # Check if we have a nextstr to inject instead of using the section
                             if nextstr is None:
-                                if section[sjis] == "!":
+                                newsjis = section[sjis].pop(0)
+                                if len(section[sjis]) == 0:
+                                    del section[sjis]
+                                if newsjis == "!":
                                     newsjis = ""
-                                elif section[sjis] != "":
-                                    newsjis = section[sjis]
-                                else:
+                                elif newsjis == "":
                                     newsjis = sjis
                             else:
                                 newsjis = nextstr
