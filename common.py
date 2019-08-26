@@ -252,6 +252,7 @@ def getSection(f, title):
                     break
                 elif line.find("=") > 0:
                     split = line.split("=", 1)
+                    split[0] = split[0].replace(" ", "　")
                     split[1] = split[1].split("#")[0]
                     if split[0] not in ret:
                         ret[split[0]] = []
