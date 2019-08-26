@@ -255,7 +255,7 @@ def getSection(f, title):
                     split[1] = split[1].split("#")[0]
                     if split[0] not in ret:
                         ret[split[0]] = []
-                    ret[split[0]].append(split[1].replace("’", "'").replace("‘", "'").replace("“", "\"").replace("”", "\"").replace("…", "...").replace("—", "-").replace("～", "~").replace("	", " "))
+                    ret[split[0]].append(split[1].replace("’", "'").replace("‘", "'").replace("…", "...").replace("—", "-").replace("～", "~").replace("	", " "))
     except UnicodeDecodeError:
         return ret
     return ret
