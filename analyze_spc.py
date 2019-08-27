@@ -69,8 +69,8 @@ with codecs.open(outfile, "w", "utf-8") as out:
                                     i += 1
                                 else:
                                     f.seek(-1, 1)
-                                    char = common.toHex(common.readUShort(f))
-                                    convert += inversetable[char[-2:] + char[:-2]]
+                                    char = common.toHex(common.readByte(f)) + common.toHex(common.readByte(f))
+                                    convert += inversetable[char]
                                     i += 2
                         except KeyError:
                             convert = ""
@@ -100,4 +100,4 @@ with codecs.open(outfile, "w", "utf-8") as out:
                 else:
                     writeLine(out, pos, byte, "Unknown!")
             for k, v in functions.items():
-                out.write("Missing function pointer", k, ":", v, " \n")
+                out.write("Missing function pointer " + str(k) + ": " + str(v) + "  \n")

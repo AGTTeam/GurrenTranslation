@@ -162,7 +162,7 @@ def writeShiftJIS(f, str, writelen=True):
     if writelen:
         lenpos = f.tell()
         writeShort(f, strlen)
-    if ord(str[0]) < 256:
+    if ord(str[0]) < 256 or str[0] == "“" or str[0] == "”":
         # ASCII string
         while i < len(str):
             if i < len(str) - 1 and str[i+1] == "<":
@@ -392,6 +392,7 @@ def loadTable():
     if os.path.isfile("table.txt"):
         with codecs.open("table.txt", "r", "utf-8") as ft:
             for line in ft:
+                line = line.strip("\r\n")
                 if line.find("=") > 0:
                     linesplit = line.split("=", 1)
                     table[linesplit[0]] = linesplit[1]
