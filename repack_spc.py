@@ -36,7 +36,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
         funcpointers = {"MswMess": [], "MswHit": []}
         nextstr = None
         addstr = ""
-        last29 = 0x00
+        last29 = []
         f = open(spcout + file, "wb")
         f.close()
         with open(spcout + file, "r+b") as f:
@@ -155,7 +155,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                                 common.writeByte(f, 0x0F)
                                 common.writeUInt(f, 0x04)
                                 common.writeByte(f, 0x29)
-                                common.writeUInt(f, last29)
+                                common.writeUInt(f, last29[len(last29) - 1])
                                 common.writeByte(f, 0x10)
                                 strpointer = f.tell()
                                 common.writeShiftJIS(f, strsplit[0])
@@ -163,7 +163,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                                 common.writeByte(f, 0x00)
                                 common.writeUInt(f, strpointer - 16 - 4)
                                 common.writeByte(f, 0x28)
-                                common.writeByte(f, last29)
+                                common.writeByte(f, 0x00)
                                 common.writeByte(f, 0x10)
                                 strpointer2 = f.tell()
                                 common.writeShiftJIS(f, strsplit[1] if len(strsplit) == 2 else "")
@@ -191,7 +191,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                         elif byte == 0x12:
                             codepointers.append(f.tell() + 1)
                         elif byte == 0x29:
-                            last29 = common.readUInt(fin)
+                            last29.append(common.readUInt(fin))
                             fin.seek(-4, 1)
                         f.write(fin.read(common.spccodes[byte]))
                     elif common.debug:
