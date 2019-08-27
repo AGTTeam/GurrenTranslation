@@ -162,7 +162,7 @@ def writeShiftJIS(f, str, writelen=True):
     if writelen:
         lenpos = f.tell()
         writeShort(f, strlen)
-    if ord(str[0]) < 256 or str[0] == "“" or str[0] == "”":
+    if ord(str[0]) < 256 or str[0] == "“" or str[0] == "”" or str[0] == "↓":
         # ASCII string
         while i < len(str):
             if i < len(str) - 1 and str[i+1] == "<":

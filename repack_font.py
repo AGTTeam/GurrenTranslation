@@ -19,8 +19,8 @@ table = "table.txt"
 upperchars = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 lowerchars = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
 numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-punctuation = [" ", "!", "?", "'", "\"", "“", "”", ",", ".", ":", ";", "(", ")", "-", "+", "♪", "~", "%", "*", "&"]
-customs = ["STAR"]
+punctuation = [" ", "!", "?", "'", "\"", "“", "”", ",", ".", ":", ";", "(", ")", "-", "+", "*", "&", "↓"]
+customs = ["STAR", "NOTE", "PERC", "WAVE", "DOT3", "DOT4", "DOT2"]
 all = upperchars + lowerchars + numbers + punctuation + customs
 
 # X Position in the font.png file
@@ -33,7 +33,7 @@ for i in range(len(numbers)):
 for i in range(len(punctuation)):
     positions[punctuation[i]] = (len(upperchars) * 12) + (len(numbers) * 6) + (i * 6)
 for i in range(len(customs)):
-    positions[customs[i]] = (len(upperchars) * 12) + (len(numbers) * 6) + (len(punctuation) * 6) + i
+    positions[customs[i]] = (len(upperchars) * 12) + (len(numbers) * 6) + (len(punctuation) * 6) + (i * 12)
 
 # Fix the font size before dumping it
 with open(infont, "rb") as font:
@@ -131,7 +131,7 @@ fontx = 106
 fonty = 5644
 x = len(codes) - 1
 tablestr = ""
-for item in reversed(items):
+for item in items:
     if item in customs:
         for i2 in range(11):
             for j2 in range(11):
