@@ -37,6 +37,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
         nextstr = None
         addstr = ""
         last29 = []
+        oldstrpos = 0
         f = open(spcout + file, "wb")
         f.close()
         with open(spcout + file, "r+b") as f:
@@ -60,6 +61,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                         oldlen = common.readUShort(fin)
                         fin.seek(-2, 1)
                         strpos = fin.tell()
+                        strposf = f.tell()
                         sjis = common.readShiftJIS(fin)
                         if (sjis != "" and sjis in section) or nextstr is not None:
                             if common.debug:
@@ -71,6 +73,14 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                                     del section[sjis]
                                 if newsjis == "!":
                                     newsjis = ""
+                                    # Center the line
+                                    savestrpos = f.tell()
+                                    f.seek(oldstrpos - 28)
+                                    checkbyte = common.readByte(f)
+                                    if checkbyte == 0x02:
+                                        f.seek(-1, 1)
+                                        common.writeByte(f, 1)
+                                    f.seek(savestrpos)
                                 elif newsjis == "":
                                     newsjis = sjis
                             else:
@@ -182,6 +192,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                                     pointerdiff[startpointeri - 16] = 0
                                 pointerdiff[startpointeri - 16] += endpointer - startpointer
                             addstr = ""
+                        oldstrpos = strposf
                     elif byte == 0x15:
                         f.write(fin.read(1))
                         bytelen = common.readByte(fin)
