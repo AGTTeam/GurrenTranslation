@@ -101,12 +101,17 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                                 nextstr = splitstr[1]
                                 newsjis = newsjis.replace("|", "<0A>")
                                 # Change the byte 0x1C bytes before the string to 2 if it's 1
-                                f.seek(-28, 1)
+                                checkpos = 28
+                                if newsjis.startswith("FIX("):
+                                    splitstr = newsjis.split(")", 1)
+                                    newsjis = splitstr[1]
+                                    checkpos = int(splitstr[0].replace("FIX(", ""))
+                                f.seek(-checkpos, 1)
                                 checkbyte = common.readByte(f)
                                 if checkbyte == 0x01:
                                     f.seek(-1, 1)
                                     common.writeByte(f, 2)
-                                f.seek(27, 1)
+                                f.seek(checkpos - 1, 1)
                             # Write the SJIS string
                             newlen = common.writeShiftJIS(f, newsjis)
                             lendiff = newlen - oldlen
