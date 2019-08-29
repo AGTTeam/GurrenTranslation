@@ -1,6 +1,6 @@
-import shutil
-import os
 import codecs
+import os
+import shutil
 import common
 
 spcin = "extract_NFP/SPC.NFP/"

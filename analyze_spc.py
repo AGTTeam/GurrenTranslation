@@ -1,5 +1,5 @@
-import sys
 import codecs
+import sys
 import common
 
 infolder = "work_NFP/SPC.NFP/" if "-p" in sys.argv else "extract_NFP/SPC.NFP/"

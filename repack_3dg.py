@@ -1,7 +1,7 @@
-import shutil
 import os
-import common
+import shutil
 from PIL import Image
+import common
 
 dgin = "extract_NFP/NFP3D.NFP/"
 dgwork = "work_3DG/"

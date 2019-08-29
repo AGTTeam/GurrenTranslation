@@ -1,5 +1,5 @@
-import os
 import codecs
+import os
 import common
 
 infile = "extract/arm9.bin"
@@ -7,7 +7,7 @@ outfile = "bin_input.txt"
 # Set to False to analyze the whole file
 limit = True
 
-print("Extracting BIN...")
+print("Extracting BIN ...")
 with codecs.open(outfile, "w", "utf-8") as out:
     insize = os.path.getsize(infile)
     with open(infile, "rb") as f:
@@ -21,7 +21,7 @@ with codecs.open(outfile, "w", "utf-8") as out:
                 if check != "":
                     if check not in foundstrings:
                         if common.debug:
-                            print("Found string at", pos)
+                            print(" Found string at", pos)
                         foundstrings.append(check)
                         out.write(check + "=\n")
                     pos = f.tell() - 1

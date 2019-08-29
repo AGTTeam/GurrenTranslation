@@ -8,11 +8,11 @@ if os.path.isdir(outfolder):
     shutil.rmtree(outfolder)
 os.mkdir(outfolder)
 
-print("Extracting KPC...")
+print("Extracting KPC ...")
 for file in os.listdir(infolder):
     if not file.endswith(".KPC"):
         continue
-    print("Processing", file, "...")
+    print(" Processing", file, "...")
     with open(infolder + file, "rb") as f:
         # Read header
         f.seek(4)
@@ -36,12 +36,12 @@ for file in os.listdir(infolder):
         palsize = common.readUInt(f)
         paloffset = common.readUInt(f)
         if common.debug:
-            print(" width:", width, "height:", height, "bpp:", bpp)
-            print(" mapsize:", mapsize, "mapoffset:", mapoffset)
-            print(" tilesize:", tilesize, "tileoffset:", tileoffset)
-            print(" palsize:", palsize, "paloffset:", paloffset)
-            print(" palcompressed:", palcompressed, "mapcompressed:", mapcompressed, "tilecompressed:", tilecompressed)
-            print(" bits:", bits, "unk:", unk)
+            print("  width:", width, "height:", height, "bpp:", bpp)
+            print("  mapsize:", mapsize, "mapoffset:", mapoffset)
+            print("  tilesize:", tilesize, "tileoffset:", tileoffset)
+            print("  palsize:", palsize, "paloffset:", paloffset)
+            print("  palcompressed:", palcompressed, "mapcompressed:", mapcompressed, "tilecompressed:", tilecompressed)
+            print("  bits:", bits, "unk:", unk)
         # Read palette
         f.seek(paloffset)
         if palcompressed:

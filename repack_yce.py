@@ -1,10 +1,10 @@
-import shutil
-import os
-import common
 import base64
+import os
 import pickle
+import shutil
 import struct
 from PIL import Image
+import common
 
 ycein = "extract_NFP/NFP2D.NFP/"
 ycework = "work_YCE/"

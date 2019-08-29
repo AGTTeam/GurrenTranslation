@@ -1,8 +1,8 @@
 import codecs
-import common
 import os
 import shutil
 from PIL import Image
+import common
 
 xmlfile = "fontdump.xml"
 imgfile = "fontdump.png"

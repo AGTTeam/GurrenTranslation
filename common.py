@@ -1,7 +1,8 @@
-import struct
-import os
 import codecs
 import math
+import os
+import struct
+import crcmod
 from PIL import Image, ImageOps
 
 debug = False
@@ -17,33 +18,7 @@ spccodes = {
 table = {}
 
 
-class YCETexture:
-    width = 0
-    height = 0
-    offset = 0
-    size = 0
-    oamnum = 0
-    oamsize = 0
-    tilesize = 0
-    paloffset = 0
-    oams = []
-
-
-class OAM:
-    x = 0
-    y = 0
-    width = 0
-    height = 0
-    offset = 0
-
-
-def toHex(byte):
-    hexstr = hex(byte)[2:].upper()
-    if len(hexstr) == 1:
-        return "0" + hexstr
-    return hexstr
-
-
+# File reading
 def readInt(f):
     return struct.unpack("<i", f.read(4))[0]
 
@@ -62,10 +37,6 @@ def readUShort(f):
 
 def readByte(f):
     return struct.unpack("B", f.read(1))[0]
-
-
-def readPalette(p):
-    return (((p >> 0) & 0x1f) << 3, ((p >> 5) & 0x1f) << 3, ((p >> 10) & 0x1f) << 3, 0xff)
 
 
 def readString(f, length):
@@ -89,37 +60,6 @@ def readNullString(f):
         else:
             str += chr(byte)
     return str
-
-
-def readShiftJIS(f):
-    len = readShort(f)
-    pos = f.tell()
-    # Check if the string is all ascii
-    ascii = True
-    for i in range(len - 1):
-        byte = readByte(f)
-        if byte != 0x0A and (byte < 32 or byte > 122):
-            ascii = False
-            break
-    if not ascii:
-        f.seek(pos)
-        sjis = ""
-        i = 0
-        while i < len - 1:
-            byte = readByte(f)
-            if byte in codes:
-                sjis += "<" + toHex(byte) + ">"
-                i += 1
-            else:
-                f.seek(-1, 1)
-                try:
-                    sjis += f.read(2).decode("shift-jis").replace("〜", "～")
-                except UnicodeDecodeError:
-                    print("[ERROR] UnicodeDecodeError")
-                    sjis += "|"
-                i += 2
-        return sjis
-    return ""
 
 
 def writeInt(f, num):
@@ -149,6 +89,191 @@ def writeString(f, str):
 def writeZero(f, num):
     for i in range(num):
         writeByte(f, 0)
+
+
+def decompress(f, size):
+    # Code based on https://wiibrew.org/wiki/LZ77
+    header = readUInt(f)
+    length = header >> 8
+    type = (header >> 4) & 0xF
+    if debug:
+        print("  Header:", toHex(header), "length:", length, "type:", type)
+    if type != 1:
+        print("  [ERROR] Unknown compression type", type)
+        return bytes()
+    dout = bytearray()
+    while len(dout) < length:
+        flags = struct.unpack("<B", f.read(1))[0]
+        for i in range(8):
+            if flags & 0x80:
+                info = struct.unpack(">H", f.read(2))[0]
+                num = 3 + ((info >> 12) & 0xF)
+                # disp = info & 0xFFF
+                ptr = len(dout) - (info & 0xFFF) - 1
+                for i in range(num):
+                    dout.append(dout[ptr])
+                    ptr += 1
+                    if len(dout) >= length:
+                        break
+            else:
+                dout += f.read(1)
+            flags <<= 1
+            if len(dout) >= length:
+                break
+    return bytes(dout)
+
+
+def patchBanner(f, title):
+    for i in range(6):
+        # Write new text
+        f.seek(576 + 256 * i)
+        for char in title:
+            writeByte(f, ord(char))
+            writeByte(f, 0x00)
+        # Compute CRC
+        f.seek(32)
+        crc = crcmod.predefined.mkCrcFun("modbus")(f.read(2080))
+        f.seek(2)
+        writeUShort(f, crc)
+
+
+# Strings
+def toHex(byte):
+    hexstr = hex(byte)[2:].upper()
+    if len(hexstr) == 1:
+        return "0" + hexstr
+    return hexstr
+
+
+def checkShiftJIS(first, second):
+    # Based on https://www.lemoda.net/c/detect-shift-jis/
+    status = False
+    if (first >= 0x81 and first <= 0x84) or (first >= 0x87 and first <= 0x9f):
+        if second >= 0x40 and second <= 0xfc:
+            status = True
+    elif first >= 0xe0 and first <= 0xef:
+        if second >= 0x40 and second <= 0xfc:
+            status = True
+    return status
+
+
+def getSection(f, title):
+    ret = {}
+    found = title == ""
+    try:
+        f.seek(0)
+        for line in f:
+            line = line.strip("\r\n")
+            if not found and line.startswith("!FILE:" + title):
+                found = True
+            elif found:
+                if title != "" and line.startswith("!FILE:"):
+                    break
+                elif line.find("=") > 0:
+                    split = line.split("=", 1)
+                    split[0] = split[0].replace(" ", "　")
+                    split[1] = split[1].split("#")[0]
+                    if split[0] not in ret:
+                        ret[split[0]] = []
+                    ret[split[0]].append(split[1].replace("’", "'").replace("‘", "'").replace("…", "...").replace("—", "-").replace("～", "~").replace("	", " "))
+    except UnicodeDecodeError:
+        return ret
+    return ret
+
+
+# Generic texture
+def readPalette(p):
+    return (((p >> 0) & 0x1f) << 3, ((p >> 5) & 0x1f) << 3, ((p >> 10) & 0x1f) << 3, 0xff)
+
+
+def getColorDistance(c1, c2):
+    (r1, g1, b1, a1) = c1
+    (r2, g2, b2, a2) = c2
+    return math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2)
+
+
+def getPaletteIndex(palette, color, fixtrasp=False):
+    if color[3] == 0:
+        return 0
+    for i in range(0 if fixtrasp else 1, len(palette)):
+        if palette[i][0] == color[0] and palette[i][1] == color[1] and palette[i][2] == color[2]:
+            return i
+    if palette[0][0] == color[0] and palette[0][1] == color[1] and palette[0][2] == color[2]:
+        return 0
+    if debug:
+        print("  Color", color, "not found, finding closest color ...")
+    mindist = 0xFFFFFFFF
+    disti = 0
+    for i in range(1, len(palette)):
+        distance = getColorDistance(color, palette[i])
+        if distance < mindist:
+            mindist = distance
+            disti = i
+    if debug:
+        print("  Closest color:", palette[disti])
+    return disti
+
+
+def findBestPalette(palettes, colors):
+    if len(palettes) == 1:
+        return 0
+    mindist = 0xFFFFFFFF
+    disti = 0
+    for i in range(len(palettes)):
+        distance = 0
+        for color in colors:
+            singledist = 0xFFFFFFFF
+            for palcolor in palettes[i]:
+                singledist = min(singledist, getColorDistance(color, palcolor))
+            distance += singledist
+        if distance < mindist:
+            mindist = distance
+            disti = i
+            if mindist == 0:
+                break
+    return disti
+
+
+def drawPalette(pixels, palette, width, ystart=0):
+    for x in range(len(palette)):
+        j = width + ((x % 8) * 5)
+        i = ystart + ((x // 8) * 5)
+        for j2 in range(5):
+            for i2 in range(5):
+                pixels[j + j2, i + i2] = palette[x]
+    return pixels
+
+
+# Game-specific strings
+def readShiftJIS(f):
+    len = readShort(f)
+    pos = f.tell()
+    # Check if the string is all ascii
+    ascii = True
+    for i in range(len - 1):
+        byte = readByte(f)
+        if byte != 0x0A and (byte < 32 or byte > 122):
+            ascii = False
+            break
+    if not ascii:
+        f.seek(pos)
+        sjis = ""
+        i = 0
+        while i < len - 1:
+            byte = readByte(f)
+            if byte in codes:
+                sjis += "<" + toHex(byte) + ">"
+                i += 1
+            else:
+                f.seek(-1, 1)
+                try:
+                    sjis += f.read(2).decode("shift-jis").replace("〜", "～")
+                except UnicodeDecodeError:
+                    print("[ERROR] UnicodeDecodeError")
+                    sjis += "|"
+                i += 2
+        return sjis
+    return ""
 
 
 def writeShiftJIS(f, str, writelen=True):
@@ -227,53 +352,6 @@ def writeShiftJIS(f, str, writelen=True):
     return strlen + 1
 
 
-def isStringPointer(f):
-    readByte(f)
-    b2 = readByte(f)
-    b3 = readByte(f)
-    b4 = readByte(f)
-    # print("Signature: " + hex(b1) + " " + hex(b2) + " " + hex(b3) + " " + hex(b4))
-    if (b2 == 0 or b2 == 0x28 or b2 == 0x2A) and b3 == 0 and b4 == 0x10:
-        return True
-    return False
-
-
-def getSection(f, title):
-    ret = {}
-    found = title == ""
-    try:
-        f.seek(0)
-        for line in f:
-            line = line.strip("\r\n")
-            if not found and line.startswith("!FILE:" + title):
-                found = True
-            elif found:
-                if title != "" and line.startswith("!FILE:"):
-                    break
-                elif line.find("=") > 0:
-                    split = line.split("=", 1)
-                    split[0] = split[0].replace(" ", "　")
-                    split[1] = split[1].split("#")[0]
-                    if split[0] not in ret:
-                        ret[split[0]] = []
-                    ret[split[0]].append(split[1].replace("’", "'").replace("‘", "'").replace("…", "...").replace("—", "-").replace("～", "~").replace("	", " "))
-    except UnicodeDecodeError:
-        return ret
-    return ret
-
-
-def checkShiftJIS(first, second):
-    # Based on https://www.lemoda.net/c/detect-shift-jis/
-    status = False
-    if (first >= 0x81 and first <= 0x84) or (first >= 0x87 and first <= 0x9f):
-        if second >= 0x40 and second <= 0xfc:
-            status = True
-    elif first >= 0xe0 and first <= 0xef:
-        if second >= 0x40 and second <= 0xfc:
-            status = True
-    return status
-
-
 def detectShiftJIS(f):
     ret = ""
     while True:
@@ -298,96 +376,6 @@ def detectShiftJIS(f):
             return ""
 
 
-def getColorDistance(c1, c2):
-    (r1, g1, b1, a1) = c1
-    (r2, g2, b2, a2) = c2
-    return math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2)
-
-
-def getPaletteIndex(palette, color, fixtrasp=False):
-    if color[3] == 0:
-        return 0
-    for i in range(0 if fixtrasp else 1, len(palette)):
-        if palette[i][0] == color[0] and palette[i][1] == color[1] and palette[i][2] == color[2]:
-            return i
-    if palette[0][0] == color[0] and palette[0][1] == color[1] and palette[0][2] == color[2]:
-        return 0
-    if debug:
-        print("  Color", color, "not found, finding closest color ...")
-    mindist = 0xFFFFFFFF
-    disti = 0
-    for i in range(1, len(palette)):
-        distance = getColorDistance(color, palette[i])
-        if distance < mindist:
-            mindist = distance
-            disti = i
-    if debug:
-        print("  Closest color:", palette[disti])
-    return disti
-
-
-def findBestPalette(palettes, colors):
-    if len(palettes) == 1:
-        return 0
-    mindist = 0xFFFFFFFF
-    disti = 0
-    for i in range(len(palettes)):
-        distance = 0
-        for color in colors:
-            singledist = 0xFFFFFFFF
-            for palcolor in palettes[i]:
-                singledist = min(singledist, getColorDistance(color, palcolor))
-            distance += singledist
-        if distance < mindist:
-            mindist = distance
-            disti = i
-            if mindist == 0:
-                break
-    return disti
-
-
-def drawPalette(pixels, palette, width, ystart=0):
-    for x in range(len(palette)):
-        j = width + ((x % 8) * 5)
-        i = ystart + ((x // 8) * 5)
-        for j2 in range(5):
-            for i2 in range(5):
-                pixels[j + j2, i + i2] = palette[x]
-    return pixels
-
-
-def decompress(f, size):
-    # Code based on https://wiibrew.org/wiki/LZ77
-    header = readUInt(f)
-    length = header >> 8
-    type = (header >> 4) & 0xF
-    if debug:
-        print("  Header:", toHex(header), "length:", length, "type:", type)
-    if type != 1:
-        print("  [ERROR] Unknown compression type", type)
-        return bytes()
-    dout = bytearray()
-    while len(dout) < length:
-        flags = struct.unpack("<B", f.read(1))[0]
-        for i in range(8):
-            if flags & 0x80:
-                info = struct.unpack(">H", f.read(2))[0]
-                num = 3 + ((info >> 12) & 0xF)
-                # disp = info & 0xFFF
-                ptr = len(dout) - (info & 0xFFF) - 1
-                for i in range(num):
-                    dout.append(dout[ptr])
-                    ptr += 1
-                    if len(dout) >= length:
-                        break
-            else:
-                dout += f.read(1)
-            flags <<= 1
-            if len(dout) >= length:
-                break
-    return bytes(dout)
-
-
 def loadTable():
     if os.path.isfile("table.txt"):
         with codecs.open("table.txt", "r", "utf-8") as ft:
@@ -396,6 +384,27 @@ def loadTable():
                 if line.find("=") > 0:
                     linesplit = line.split("=", 1)
                     table[linesplit[0]] = linesplit[1]
+
+
+# Game-specific textures
+class YCETexture:
+    width = 0
+    height = 0
+    offset = 0
+    size = 0
+    oamnum = 0
+    oamsize = 0
+    tilesize = 0
+    paloffset = 0
+    oams = []
+
+
+class OAM:
+    x = 0
+    y = 0
+    width = 0
+    height = 0
+    offset = 0
 
 
 def readPaletteData(paldata):

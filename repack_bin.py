@@ -1,7 +1,7 @@
-import os
 import codecs
-import common
+import os
 import shutil
+import common
 
 binin = "extract/arm9.bin"
 binout = "repack/arm9.bin"

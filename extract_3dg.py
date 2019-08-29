@@ -1,7 +1,7 @@
 import os
 import shutil
-import common
 from PIL import Image
+import common
 
 infolder = "extract_NFP/NFP3D.NFP/"
 outfolder = "work_3DG/"
@@ -30,12 +30,12 @@ class Palette:
 
 
 # Code based on nsbmd tool
-print("Extracting 3DG...")
+print("Extracting 3DG ...")
 with open(outfile, "w") as dg:
     for file in os.listdir(infolder):
         if not file.endswith(".3DG"):
             continue
-        print("Processing", file, "...")
+        print(" Processing", file, "...")
         first = True
         with open(infolder + file, "rb") as f:
             # Skip the 3DKT header
@@ -67,10 +67,10 @@ with open(outfile, "w") as dg:
             paldefoffset = common.readUInt(f) + blockoffset
             paldataoffset = common.readUInt(f) + blockoffset
             if common.debug:
-                print(" blocksize:", blocksize, "blocklimit:", blocklimit)
-                print(" texdataoffset:", texdataoffset, "texdatasize:", texdatasize)
-                print(" sptexoffset:", sptexoffset, "sptexsize:", sptexsize, "spdataoffset:", spdataoffset)
-                print(" paldataoffset:", paldataoffset, "paldatasize:", paldatasize, "paldefoffset:", paldefoffset)
+                print("  blocksize:", blocksize, "blocklimit:", blocklimit)
+                print("  texdataoffset:", texdataoffset, "texdatasize:", texdatasize)
+                print("  sptexoffset:", sptexoffset, "sptexsize:", sptexsize, "spdataoffset:", spdataoffset)
+                print("  paldataoffset:", paldataoffset, "paldatasize:", paldatasize, "paldefoffset:", paldefoffset)
             # Texture definition
             f.seek(1, 1)
             texnum = common.readByte(f)
@@ -79,7 +79,7 @@ with open(outfile, "w") as dg:
             palnum = common.readByte(f)
             f.seek(pos)
             if common.debug:
-                print(" texnum:", texnum, "palnum:", palnum)
+                print("  texnum:", texnum, "palnum:", palnum)
             f.seek(14 + (texnum * 4), 1)
             textures = []
             palettes = []
@@ -101,7 +101,7 @@ with open(outfile, "w") as dg:
             for tex in textures:
                 tex.name = common.readString(f, 16)
                 if common.debug:
-                    print(" Texture", tex.name, "format:", tex.format, "width:", tex.width, "height:", tex.height, "size:", tex.size, "offset:", tex.offset)
+                    print("  Texture", tex.name, "format:", tex.format, "width:", tex.width, "height:", tex.height, "size:", tex.size, "offset:", tex.offset)
             # Palette definition
             f.seek(paldefoffset + 2 + 14 + (palnum * 4))
             for i in range(palnum):
@@ -124,7 +124,7 @@ with open(outfile, "w") as dg:
             for pal in palettes:
                 pal.name = common.readString(f, 16)
                 if common.debug:
-                    print(" Palette", pal.name, "size:", pal.size, "offset:", pal.offset)
+                    print("  Palette", pal.name, "size:", pal.size, "offset:", pal.offset)
             # Traverse palette
             for pal in palettes:
                 f.seek(pal.offset)
@@ -134,7 +134,7 @@ with open(outfile, "w") as dg:
             # Traverse texture
             for texi in range(len(textures)):
                 tex = textures[texi]
-                print("  Exporting", tex.name, "...")
+                print("   Exporting", tex.name, "...")
                 palette = None
                 if tex.format != 7:
                     palette = palettes[texi]
@@ -175,7 +175,7 @@ with open(outfile, "w") as dg:
                             if index < len(palette):
                                 pixels[j, i] = (palette[index][0], palette[index][1], palette[index][2], alpha)
                             elif common.warning:
-                                print("  [WARNING] Index", index, "is out of range", len(palette))
+                                print("   [WARNING] Index", index, "is out of range", len(palette))
                 # 4-color Palette
                 elif tex.format == 2:
                     for i in range(tex.height):
@@ -185,7 +185,7 @@ with open(outfile, "w") as dg:
                             if index < len(palette):
                                 pixels[j, i] = palette[index]
                             elif common.warning:
-                                print("  [WARNING] Index", index, "is out of range", len(palette))
+                                print("   [WARNING] Index", index, "is out of range", len(palette))
                 # 16-color Palette
                 elif tex.format == 3:
                     for i in range(tex.height):
@@ -195,7 +195,7 @@ with open(outfile, "w") as dg:
                             if index < len(palette):
                                 pixels[j, i] = palette[index]
                             elif common.warning:
-                                print("  [WARNING] Index", index, "is out of range", len(palette))
+                                print("   [WARNING] Index", index, "is out of range", len(palette))
                 # 256-color Palette
                 elif tex.format == 4:
                     for i in range(tex.height):
@@ -229,9 +229,9 @@ with open(outfile, "w") as dg:
                                         elif (addr << 1) + texel < len(palette):
                                             pixels[j, i] = palette[(addr << 1) + texel]
                                         elif common.warning:
-                                            print("  [WARNING] Index", (addr << 1) + texel, "is out of range", len(palette))
+                                            print("   [WARNING] Index", (addr << 1) + texel, "is out of range", len(palette))
                                     else:
-                                        print("  [ERROR] Unknown mode", mode)
+                                        print("   [ERROR] Unknown mode", mode)
                 # A5I3 Translucent Texture (5bit Alpha, 3bit Color Index)
                 elif tex.format == 6:
                     for i in range(tex.height):
@@ -243,7 +243,7 @@ with open(outfile, "w") as dg:
                             if index < len(palette):
                                 pixels[j, i] = (palette[index][0], palette[index][1], palette[index][2], alpha)
                             elif common.warning:
-                                print("  [WARNING] Index", index, "is out of range", len(palette))
+                                print("   [WARNING] Index", index, "is out of range", len(palette))
                 # Direct Color Texture
                 elif tex.format == 7:
                     for i in range(tex.height):

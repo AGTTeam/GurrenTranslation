@@ -8,11 +8,11 @@ if os.path.isdir(outfolder):
     shutil.rmtree(outfolder)
 os.mkdir(outfolder)
 
-print("Extracting VSC...")
+print("Extracting VSC ...")
 for file in os.listdir(infolder):
     if not file.endswith(".VSC"):
         continue
-    print("Processing", file, "...")
+    print(" Processing", file, "...")
     with open(infolder + file, "rb") as f:
         # Read header
         f.seek(4)
@@ -28,20 +28,20 @@ for file in os.listdir(infolder):
         unk5 = common.readUInt(f)
         tilesize = common.readUInt(f)
         if common.debug:
-            print(" size:", size, "width:", width, "height:", height, "mapsize:", mapsize, "tilesize:", tilesize, "bpp:", bpp)
-            print(" unk1:", unk1, "unk2:", unk2, "unk3:", unk3, "unk4:", unk4, "unk5:", unk5)
+            print("  size:", size, "width:", width, "height:", height, "mapsize:", mapsize, "tilesize:", tilesize, "bpp:", bpp)
+            print("  unk1:", unk1, "unk2:", unk2, "unk3:", unk3, "unk4:", unk4, "unk5:", unk5)
         # Read data
         if common.debug:
-            print(" mapoffset:", f.tell())
+            print("  mapoffset:", f.tell())
         mapdata = f.read(mapsize)
         if common.debug:
-            print(" tileoffset:", f.tell())
+            print("  tileoffset:", f.tell())
         tiledata = f.read(tilesize)
         if common.debug:
-            print(" paloffset:", f.tell())
+            print("  paloffset:", f.tell())
         cpal = common.readString(f, 4)
         if cpal != "CPAL":
-            print(" [ERROR] Palette header", cpal)
+            print("  [ERROR] Palette header", cpal)
         f.seek(20, 1)
         palnum = common.readUShort(f)
         f.seek(4, 1)
