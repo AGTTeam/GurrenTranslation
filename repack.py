@@ -88,4 +88,10 @@ if not os.path.isfile("ndstool.exe"):
 else:
     print("Repacking ROM ...")
     os.system("ndstool -c rom_patched.nds -9 repack/arm9.bin -7 repack/arm7.bin -y9 repack/y9.bin -y7 repack/y7.bin -t repack/banner.bin -h repack/header.bin -d repack/data -y repack/overlay")
-    print("All done!")
+    # Create xdelta patch
+    if not os.path.isfile("xdelta.exe"):
+        print("[ERROR] xdelta.exe not found")
+    else:
+        print("Creating patch ...")
+        os.system("xdelta -f -e -s rom.nds rom_patched.nds patch.xdelta")
+        print("All done!")

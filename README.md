@@ -4,6 +4,7 @@ Run "pip install pillow"
 Run "pip install crcmod"  
 Download ndstool.exe and place it inside this folder https://www.darkfader.net/ds/files/ndstool.exe  
 Download NerdFontTerminatoR.exe and place it inside this folder https://github.com/pleonex/NerdFontTerminatoR/releases  
+Download xdelta.exe and place it inside this folder  
 # Extraction
 Copy the rom as "rom.nds" inside this folder  
 Run "extract_rom.py" to extract the ROM in the "extract" folder with ndstool  

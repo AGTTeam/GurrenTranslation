@@ -3,8 +3,8 @@ extract
 extract_NFP
 work_*
 repack
-ndstool.exe
-NerdFontTerminatoR.exe
+*.exe
 *.nds
 *.idb
+*.xdelta
 *.txt
