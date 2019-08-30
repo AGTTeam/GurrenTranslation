@@ -133,8 +133,33 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
                         else:
                             if common.debug:
                                 print("  Found ASCII or unaltered string at", strpos + 16)
-                            fin.seek(strpos)
-                            f.write(fin.read(oldlen + 2))
+                            # Patch RITT_02 to add Dayakka's missing text
+                            if file == "RITT_02.SPC" and pos - 16 == 1775:
+                                fin.seek(strpos + oldlen + 2)
+                                common.writeUShort(f, 0x09)
+                                common.writeString(f, "APP_DAYA")
+                                common.writeByte(f, 0x00)
+                                pointerdiff[strpos - 16] = 8
+                            elif file == "RITT_02.SPC" and pos - 16 == 1810:
+                                fin.seek(strpos + oldlen + 2)
+                                common.writeUShort(f, 0x09)
+                                common.writeString(f, "DAYA_004")
+                                common.writeByte(f, 0x00)
+                                pointerdiff[strpos - 16] = 8
+                            elif file == "RITT_02.SPC" and pos - 16 == 1845:
+                                fin.seek(strpos + oldlen + 2)
+                                common.writeUShort(f, 0x05)
+                                common.writeString(f, "AWAY")
+                                common.writeByte(f, 0x00)
+                                pointerdiff[strpos - 16] = 4
+                            elif file == "APP_DAYA.SPC" and pos - 16 == 439:
+                                fin.seek(strpos + oldlen + 2)
+                                common.writeUShort(f, 0x07)
+                                common.writeString(f, "sys_04")
+                                common.writeByte(f, 0x00)
+                            else:
+                                fin.seek(strpos)
+                                f.write(fin.read(oldlen + 2))
                         f.write(fin.read(2))
                         pointer = common.readUInt(fin)
                         common.writeUInt(f, convertPointer(pointer, pointerdiff))
