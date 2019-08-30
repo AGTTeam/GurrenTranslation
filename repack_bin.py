@@ -1,6 +1,7 @@
 import codecs
 import os
 import shutil
+import struct
 import common
 
 binin = "extract/arm9.bin"
@@ -10,6 +11,10 @@ if os.path.isfile(binout):
     os.remove(binout)
 shutil.copyfile(binin, binout)
 
+freeranges = [(0xEA810, 0xEEC00)]
+currentrange = 0
+rangepos = 0
+
 section = {}
 with codecs.open(binfile, "r", "utf-8") as bin:
     section = common.getSection(bin, "")
@@ -17,7 +22,9 @@ with codecs.open(binfile, "r", "utf-8") as bin:
 print("Repacking BIN ...")
 common.loadTable()
 insize = os.path.getsize(binin)
+rangepos = freeranges[currentrange][0]
 with open(binin, "rb") as fi:
+    allbin = fi.read()
     with open(binout, "r+b") as fo:
         # Skip the beginning and end of the file to avoid false-positives
         fi.seek(992000)
@@ -29,11 +36,37 @@ with open(binin, "rb") as fi:
                     if common.debug:
                         print(" Replacing string at", pos)
                     fo.seek(pos)
-                    common.writeShiftJIS(fo, section[check][0], False)
-                    pos = fi.tell() - 1
-                    if fo.tell() > pos:
-                        common.writeZero(fo, 1)
-                        print(" [ERROR] String", section[check][0], "is too long.")
+                    endpos = fi.tell() - 1
+                    newlen = common.writeShiftJIS(fo, section[check][0], False, endpos - pos)
+                    if newlen < 0:
+                        if rangepos >= freeranges[currentrange][1] and common.warning:
+                            print("  [WARNING] No more room! Skipping ...")
+                        else:
+                            # Write the string in a new portion of the rom
+                            if common.debug:
+                                print("  No room for the string, redirecting to", rangepos)
+                            fo.seek(rangepos)
+                            common.writeShiftJIS(fo, section[check][0], False)
+                            common.writeZero(fo, 1)
+                            newpointer = 0x02000000 + rangepos
+                            rangepos = fo.tell()
+                            # Search and replace the old pointer
+                            pointer = 0x02000000 + pos
+                            pointersearch = struct.pack("<I", pointer)
+                            index = 0
+                            while index < len(allbin):
+                                index = allbin.find(pointersearch, index)
+                                if index < 0:
+                                    break
+                                if common.debug:
+                                    print("  Replaced pointer at", str(index))
+                                fo.seek(index)
+                                common.writeUInt(fo, newpointer)
+                                index += 4
+                            if rangepos >= freeranges[currentrange][1]:
+                                if currentrange + 1 < len(freeranges):
+                                    currentrange += 1
+                                    rangepos = freeranges[currentrange][0]
                     else:
-                        common.writeZero(fo, pos - fo.tell())
+                        common.writeZero(fo, endpos - fo.tell())
             fi.seek(pos + 1)

@@ -32,7 +32,7 @@ Comments can be added at the end of the lines by using #
 Edit the images in the "work_3DG", "work_YCE", "work_KPC" and "work_VSC" folders. The palette on the right should be followed but the repacker will try to approximate other colors to the nearest one  
 If an image doesn't require repacking, it should be deleted from the work folder  
 # Repacking
-Run "repack.py" to generate "rom_patched.nds"  
+Run "repack.py" to generate "rom_patched.nds" and "patch.xdelta"  
 If you only want to repack NFP and patch the rom, you can use "repack.py -nfp"  
 You can also use the following parameters to only repack specific types: -spc, -bin, -3dg, -kpc, -yce, -vsc  
 For example "repack.py -spc -bin" will only repack SPC, BIN, NFP and patch the rom  

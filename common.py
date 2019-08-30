@@ -276,7 +276,7 @@ def readShiftJIS(f):
     return ""
 
 
-def writeShiftJIS(f, str, writelen=True):
+def writeShiftJIS(f, str, writelen=True, maxlen=0):
     if str == "":
         if writelen:
             writeShort(f, 1)
@@ -310,10 +310,14 @@ def writeShiftJIS(f, str, writelen=True):
                 f.write(bytes.fromhex(code))
                 i += 9
                 strlen += 2
+                if maxlen > 0 and strlen >= maxlen:
+                    return -1
             elif char == "C" and i < len(str) - 4 and str[i:i+4] == "CUS(":
                 f.write(bytes.fromhex(table[str[i+4:i+8]]))
                 i += 9
                 strlen += 2
+                if maxlen > 0 and strlen >= maxlen:
+                    return -1
             else:
                 if i + 1 == len(str):
                     bigram = char + " "
@@ -329,6 +333,8 @@ def writeShiftJIS(f, str, writelen=True):
                     bigram = "  "
                 f.write(bytes.fromhex(table[bigram]))
                 strlen += 2
+                if maxlen > 0 and strlen >= maxlen:
+                    return -1
     else:
         # SJIS string
         str = str.replace("～", "〜")
