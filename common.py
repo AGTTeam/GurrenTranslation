@@ -192,6 +192,12 @@ def getColorDistance(c1, c2):
     return math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2)
 
 
+def sumColors(c1, c2, a=1, b=1, c=2):
+    (r1, g1, b1, a1) = c1
+    (r2, g2, b2, a2) = c2
+    return ((r1 * a + r2 * b) // c, (g1 * a + g2 * b) // c, (b1 * a + b2 * b) // c, a1)
+
+
 def getPaletteIndex(palette, color, fixtrasp=False):
     if color[3] == 0:
         return 0

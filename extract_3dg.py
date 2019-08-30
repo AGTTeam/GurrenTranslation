@@ -147,17 +147,22 @@ with open(outfile, "w") as dg:
                 else:
                     texdata = (tex.format, tex.width, tex.height, tex.size, tex.offset)
                 dg.write(tex.name + "=" + ",".join(str(item) for item in texdata) + "\n")
-                # [TODO] Disable format 5 for now
-                if tex.format == 5:
-                    continue
                 if tex.format == 5:
                     r = tex.size >> 1
                     f.seek(spdataoffset)
-                    spdata = f.read(r)
+                    spdata = []
+                    spdata2 = []
+                    for i in range(r // 2):
+                        spdata.append(common.readUShort(f))
                     spdataoffset += r
                 # Export texture
                 f.seek(tex.offset)
-                data = f.read(tex.size)
+                if tex.format == 5:
+                    data = []
+                    for i in range(tex.size // 4):
+                        data.append(common.readUInt(f))
+                else:
+                    data = f.read(tex.size)
                 if tex.format != 7:
                     palette = palette.data
                     img = Image.new("RGBA", (tex.width + 40, max(tex.height, (len(palette) // 8) * 5)), (0, 0, 0, 0))
@@ -216,22 +221,37 @@ with open(outfile, "w") as dg:
                             t = data[index]
                             d = spdata[index]
                             addr = d & 0x3fff
+                            pali = addr << 1
                             mode = (d >> 14) & 3
                             for r in range(4):
                                 for c in range(4):
                                     texel = (t >> ((r * 4 + c) * 2)) & 3
-                                    print("addr:", addr, "texel:", texel)
                                     i = y * 4 + r
                                     j = x * 4 + c
-                                    if mode == 0:
-                                        if texel == 3:
-                                            pixels[j, i] = (0xff, 0xff, 0xff, 0)
-                                        elif (addr << 1) + texel < len(palette):
-                                            pixels[j, i] = palette[(addr << 1) + texel]
-                                        elif common.warning:
-                                            print("   [WARNING] Index", (addr << 1) + texel, "is out of range", len(palette))
-                                    else:
-                                        print("   [ERROR] Unknown mode", mode)
+                                    try:
+                                        if mode == 0:
+                                            if texel == 3:
+                                                pixels[j, i] = (0xff, 0xff, 0xff, 0)
+                                            else:
+                                                pixels[j, i] = palette[pali + texel]
+                                        elif mode == 2:
+                                            pixels[j, i] = palette[pali + texel]
+                                        elif mode == 1:
+                                            if texel == 0 or texel == 1:
+                                                pixels[j, i] = palette[pali + texel]
+                                            elif texel == 2:
+                                                pixels[j, i] = common.sumColors(palette[pali], palette[pali + 1])
+                                            elif texel == 3:
+                                                pixels[j, i] = (0xff, 0xff, 0xff, 0)
+                                        elif mode == 3:
+                                            if texel == 0 or texel == 1:
+                                                pixels[j, i] = palette[pali + texel]
+                                            elif texel == 2:
+                                                pixels[j, i] = common.sumColors(palette[pali], palette[pali + 1], 5, 3, 8)
+                                            elif texel == 3:
+                                                pixels[j, i] = common.sumColors(palette[pali], palette[pali + 1], 3, 5, 8)
+                                    except IndexError:
+                                        pixels[j, i] = (0x00, 0x00, 0x00, 0xff)
                 # A5I3 Translucent Texture (5bit Alpha, 3bit Color Index)
                 elif tex.format == 6:
                     for i in range(tex.height):
