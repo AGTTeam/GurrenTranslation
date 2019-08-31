@@ -5,8 +5,11 @@ import common_game as game
 
 spcin = "data/extract_NFP/SPC.NFP/"
 spcout = "data/work_NFP/SPC.NFP/"
-common.makeFolder(spcout)
 spcfile = "data/spc_input.txt"
+if not os.path.isfile(spcfile):
+    print("Input file", spcfile, "not found.")
+    quit()
+common.makeFolder(spcout)
 
 
 def convertPointer(pointer, pointerdiff):

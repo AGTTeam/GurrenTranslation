@@ -7,6 +7,9 @@ import common_game as game
 binin = "data/extract/arm9.bin"
 binout = "data/repack/arm9.bin"
 binfile = "data/bin_input.txt"
+if not os.path.isfile(binfile):
+    print("Input file", binfile, "not found.")
+    quit()
 common.copyFile(binin, binout)
 
 freeranges = [(0xEA810, 0xEEC00)]

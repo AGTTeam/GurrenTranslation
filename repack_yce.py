@@ -9,6 +9,9 @@ ycein = "data/extract_NFP/NFP2D.NFP/"
 ycework = "data/work_YCE/"
 yceout = "data/work_NFP/NFP2D.NFP/"
 ycefile = "data/yce_data.txt"
+if not os.path.isfile(ycefile):
+    print("Input file", ycefile, "not found.")
+    quit()
 
 sections = {}
 with open(ycefile, "r") as yce:

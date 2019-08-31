@@ -7,6 +7,9 @@ dgwork = "data/work_3DG/"
 dgout = "data/work_NFP/NFP3D.NFP/"
 common.makeFolder(dgout)
 dgfile = "data/3dg_data.txt"
+if not os.path.isfile(dgfile):
+    print("Input file", dgfile, "not found")
+    quit()
 
 print("Repacking 3DG ...")
 with open(dgfile, "r") as dg:
