@@ -17,9 +17,9 @@ if not os.path.isfile("ndstool.exe"):
     print("[ERROR] ndstool.exe not found")
 else:
     print("Extracting ROM ...")
-    if os.path.isdir(outfolder):
-        shutil.rmtree(outfolder)
-    os.mkdir(outfolder)
+    if os.path.isdir(extractfolder):
+        shutil.rmtree(extractfolder)
+    os.mkdir(extractfolder)
     os.system("ndstool -x {rom} -9 {folder}arm9.bin -7 {folder}arm7.bin -y9 {folder}y9.bin -y7 {folder}y7.bin -t {folder}banner.bin -h {folder}header.bin -d {folder}data -y {folder}overlay".
               format(rom=romfile, folder=extractfolder))
 
