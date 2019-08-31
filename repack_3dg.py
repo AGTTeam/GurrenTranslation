@@ -1,21 +1,18 @@
 import os
-import shutil
 from PIL import Image
 import common
 
 dgin = "data/extract_NFP/NFP3D.NFP/"
 dgwork = "data/work_3DG/"
 dgout = "data/work_NFP/NFP3D.NFP/"
-if os.path.isdir(dgout):
-    shutil.rmtree(dgout)
-os.mkdir(dgout)
+common.makeFolder(dgout)
 dgfile = "data/3dg_data.txt"
 
 print("Repacking 3DG ...")
 with open(dgfile, "r") as dg:
     for file in os.listdir(dgin):
         section = common.getSection(dg, file)
-        shutil.copyfile(dgin + file, dgout + file)
+        common.copyFile(dgin + file, dgout + file)
         if len(section) == 0:
             continue
         for k, v in section.items():

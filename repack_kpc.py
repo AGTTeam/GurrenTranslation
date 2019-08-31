@@ -1,22 +1,19 @@
 import os
-import shutil
 import common
 import common_game as game
 
 kpcin = "data/extract_NFP/NFP2D.NFP/"
 kpcwork = "data/work_KPC/"
 kpcout = "data/work_NFP/NFP2D.NFP/"
-if os.path.isdir(kpcout):
-    shutil.rmtree(kpcout)
-os.mkdir(kpcout)
+common.makeFolder(kpcout)
 
 print("Repacking KPC ...")
 for file in os.listdir(kpcin):
     if not file.endswith(".KPC") and not file.endswith(".KPC"):
-        shutil.copyfile(kpcin + file, kpcout + file)
+        common.copyFile(kpcin + file, kpcout + file)
     pngname = file.replace(".KPC", ".png")
     if not os.path.isfile(kpcwork + pngname):
-        shutil.copyfile(kpcin + file, kpcout + file)
+        common.copyFile(kpcin + file, kpcout + file)
     else:
         if common.debug:
             print("Processing", file, "...")

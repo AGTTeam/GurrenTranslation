@@ -1,6 +1,5 @@
 import codecs
 import os
-import shutil
 import struct
 import common
 import common_game as game
@@ -8,9 +7,7 @@ import common_game as game
 binin = "data/extract/arm9.bin"
 binout = "data/repack/arm9.bin"
 binfile = "data/bin_input.txt"
-if os.path.isfile(binout):
-    os.remove(binout)
-shutil.copyfile(binin, binout)
+common.copyFile(binin, binout)
 
 freeranges = [(0xEA810, 0xEEC00)]
 currentrange = 0

@@ -1,14 +1,11 @@
 import os
-import shutil
 from PIL import Image
 import common
 
 infolder = "data/extract_NFP/NFP3D.NFP/"
 outfolder = "data/out_3DG/"
 outfile = "data/3dg_data.txt"
-if os.path.isdir(outfolder):
-    shutil.rmtree(outfolder)
-os.mkdir(outfolder)
+common.makeFolder(outfolder)
 
 bpp = [0, 8, 2, 4, 8, 2, 8, 16]
 

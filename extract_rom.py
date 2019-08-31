@@ -1,32 +1,25 @@
 import os
-import shutil
 import common
 
 romfile = "data/rom.nds"
 extractfolder = "data/extract/"
 infolder = "data/extract/data/"
 outfolder = "data/extract_NFP/"
-if os.path.isdir(outfolder):
-    shutil.rmtree(outfolder)
-os.mkdir(outfolder)
+common.makeFolder(outfolder)
 workfolder = "data/work_NFP/"
-if os.path.isdir(workfolder):
-    shutil.rmtree(workfolder)
 
 if not os.path.isfile("ndstool.exe"):
     print("[ERROR] ndstool.exe not found")
 else:
     print("Extracting ROM ...")
-    if os.path.isdir(extractfolder):
-        shutil.rmtree(extractfolder)
-    os.mkdir(extractfolder)
-    os.system("ndstool -x {rom} -9 {folder}arm9.bin -7 {folder}arm7.bin -y9 {folder}y9.bin -y7 {folder}y7.bin -t {folder}banner.bin -h {folder}header.bin -d {folder}data -y {folder}overlay".
-              format(rom=romfile, folder=extractfolder))
+    common.makeFolder(extractfolder)
+    common.execute("ndstool -x {rom} -9 {folder}arm9.bin -7 {folder}arm7.bin -y9 {folder}y9.bin -y7 {folder}y7.bin -t {folder}banner.bin -h {folder}header.bin -d {folder}data -y {folder}overlay".
+                   format(rom=romfile, folder=extractfolder), False)
 
     print("Extracting NFP ...")
     for file in os.listdir(infolder):
         print(" Processing", file, "...")
-        os.mkdir(outfolder + file)
+        common.makeFolder(outfolder + file)
         with common.Stream(infolder + file, "rb") as f:
             f.seek(52)  # Header: NFP2.0 (c)NOBORI 1997-2006
             filenum = f.readInt()
@@ -50,4 +43,4 @@ else:
                 f.seek(savepos)
 
     # Copy everything to the work folder
-    shutil.copytree(outfolder, workfolder)
+    common.copyFolder(outfolder, workfolder)

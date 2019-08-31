@@ -1,7 +1,6 @@
 import base64
 import os
 import pickle
-import shutil
 import struct
 from PIL import Image
 import common
@@ -19,7 +18,7 @@ print("Repacking YCE ...")
 for file in os.listdir(ycein):
     if not file.endswith(".YCE"):
         continue
-    shutil.copyfile(ycein + file, yceout + file)
+    common.copyFile(ycein + file, yceout + file)
     if file not in sections:
         continue
     pngname = file.replace(".YCE", ".png")

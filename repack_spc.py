@@ -1,14 +1,11 @@
 import codecs
 import os
-import shutil
 import common
 import common_game as game
 
 spcin = "data/extract_NFP/SPC.NFP/"
 spcout = "data/work_NFP/SPC.NFP/"
-if os.path.isdir(spcout):
-    shutil.rmtree(spcout)
-os.mkdir(spcout)
+common.makeFolder(spcout)
 spcfile = "data/spc_input.txt"
 
 
@@ -28,7 +25,7 @@ with codecs.open(spcfile, "r", "utf-8") as spc:
     for file in os.listdir(spcin):
         section = common.getSection(spc, file)
         if len(section) == 0:
-            shutil.copyfile(spcin + file, spcout + file)
+            common.copyFile(spcin + file, spcout + file)
             continue
         if common.debug:
             print(" Repacking", file, "...")

@@ -1,7 +1,6 @@
 import base64
 import os
 import pickle
-import shutil
 import struct
 from PIL import Image
 import common
@@ -10,9 +9,7 @@ import common_game as game
 infolder = "data/extract_NFP/NFP2D.NFP/"
 outfolder = "data/out_YCE/"
 outfile = "data/yce_data.txt"
-if os.path.isdir(outfolder):
-    shutil.rmtree(outfolder)
-os.mkdir(outfolder)
+common.makeFolder(outfolder)
 
 print("Extracting YCE ...")
 with open(outfile, "w") as yce:

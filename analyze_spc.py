@@ -21,13 +21,6 @@ def writeLine(out, pos, byte, line):
     out.write(str(pos).zfill(5) + " 0x" + common.toHex(byte) + ": " + line + " " + function + "  \n")
 
 
-def readBytes(f, n):
-    ret = ""
-    for i in range(n):
-        ret += common.toHex(f.readByte()) + " "
-    return ret
-
-
 with codecs.open(outfile, "w", "utf-8") as out:
     out.write(sys.argv[1] + "  \n")
     with common.Stream(infolder + sys.argv[1], "rb") as f:
@@ -56,7 +49,7 @@ with codecs.open(outfile, "w", "utf-8") as out:
                 pos = f.tell()
                 byte = f.readByte()
                 if byte == 0x10:
-                    line = readBytes(f, 2)
+                    line = f.readBytes(2)
                     f.seek(-2, 1)
                     convert = ""
                     if "-p" in sys.argv:
@@ -87,17 +80,17 @@ with codecs.open(outfile, "w", "utf-8") as out:
                             asciilen = f.readUShort()
                             asciistr = f.read(asciilen - 1)
                             line += "\"" + asciistr.decode("ascii").replace("\r", "").replace("\n", "") + "\" "
-                    line += readBytes(f, 9)
+                    line += f.readBytes(9)
                     writeLine(out, pos, byte, line)
                 elif byte == 0x15:
-                    line = readBytes(f, 2)
+                    line = f.readBytes(2)
                     f.seek(-1, 1)
                     bytelen = f.readByte()
                     for i in range(bytelen):
-                        line += readBytes(f, 8)
+                        line += f.readBytes(8)
                     writeLine(out, pos, byte, line)
                 elif byte in game.spccodes:
-                    writeLine(out, pos, byte, readBytes(f, game.spccodes[byte]))
+                    writeLine(out, pos, byte, f.readBytes(game.spccodes[byte]))
                 else:
                     writeLine(out, pos, byte, "Unknown!")
             for k, v in functions.items():

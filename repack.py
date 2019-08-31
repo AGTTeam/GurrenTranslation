@@ -1,5 +1,4 @@
 import os
-import shutil
 import sys
 import common
 
@@ -10,44 +9,42 @@ extractfolder = "data/extract/"
 debfolder = "data/extract_NFP/"
 infolder = "data/work_NFP/"
 outfolder = "data/repack/"
-if os.path.isdir(outfolder):
-    shutil.rmtree(outfolder)
-os.mkdir(outfolder)
+common.makeFolder(outfolder)
 all = len(sys.argv) == 1 or (len(sys.argv) == 2 and sys.argv[1] == "-deb")
 
 # Create the folders and copy the files
-os.mkdir(outfolder + "data")
-os.mkdir(outfolder + "overlay")
-shutil.copyfile(extractfolder + "arm7.bin", outfolder + "arm7.bin")
-shutil.copyfile(extractfolder + "arm9.bin", outfolder + "arm9.bin")
-shutil.copyfile(extractfolder + "banner.bin", outfolder + "banner.bin")
-shutil.copyfile(extractfolder + "header.bin", outfolder + "header.bin")
-shutil.copyfile(extractfolder + "y7.bin", outfolder + "y7.bin")
-shutil.copyfile(extractfolder + "y9.bin", outfolder + "y9.bin")
+common.makeFolder(outfolder + "data")
+common.makeFolder(outfolder + "overlay")
+common.copyFile(extractfolder + "arm7.bin", outfolder + "arm7.bin")
+common.copyFile(extractfolder + "arm9.bin", outfolder + "arm9.bin")
+common.copyFile(extractfolder + "banner.bin", outfolder + "banner.bin")
+common.copyFile(extractfolder + "header.bin", outfolder + "header.bin")
+common.copyFile(extractfolder + "y7.bin", outfolder + "y7.bin")
+common.copyFile(extractfolder + "y9.bin", outfolder + "y9.bin")
 
 # Repack the font
 if not os.path.isfile("NerdFontTerminatoR.exe"):
     print("[ERROR] NerdFontTerminatoR.exe not found")
 elif all or "-bin" in sys.argv or "-spc" in sys.argv:
-    os.system("python repack_font.py")
+    common.execute("python repack_font.py")
 
 if all or "-spc" in sys.argv:
-    os.system("python repack_spc.py")
+    common.execute("python repack_spc.py")
 if all or "-bin" in sys.argv:
-    os.system("python repack_bin.py")
+    common.execute("python repack_bin.py")
 if all or "-3dg" in sys.argv:
-    os.system("python repack_3dg.py")
+    common.execute("python repack_3dg.py")
 if all or "-kpc" in sys.argv:
-    os.system("python repack_kpc.py")
+    common.execute("python repack_kpc.py")
 if all or "-vsc" in sys.argv:
-    os.system("python repack_vsc.py")
+    common.execute("python repack_vsc.py")
 if all or "-yce" in sys.argv:
-    os.system("python repack_yce.py")
+    common.execute("python repack_yce.py")
 
 if "-deb" in sys.argv:
-    shutil.copyfile(debfolder + "SPC.NFP/S_DEBUG.SPC", infolder + "SPC.NFP/S_MAIN.SPC")
+    common.copyFile(debfolder + "SPC.NFP/S_DEBUG.SPC", infolder + "SPC.NFP/S_MAIN.SPC")
 else:
-    shutil.copyfile(debfolder + "SPC.NFP/S_MAIN.SPC", infolder + "SPC.NFP/S_MAIN.SPC")
+    common.copyFile(debfolder + "SPC.NFP/S_MAIN.SPC", infolder + "SPC.NFP/S_MAIN.SPC")
 
 # Repack NFP
 print("Repacking NFP ...")
@@ -91,12 +88,12 @@ if not os.path.isfile("ndstool.exe"):
     print("[ERROR] ndstool.exe not found")
 else:
     print("Repacking ROM ...")
-    os.system("ndstool -c {rom} -9 {folder}arm9.bin -7 {folder}arm7.bin -y9 {folder}y9.bin -y7 {folder}y7.bin -t {folder}banner.bin -h {folder}header.bin -d {folder}data -y {folder}overlay".
-              format(rom=rompatch, folder=outfolder))
+    common.execute("ndstool -c {rom} -9 {folder}arm9.bin -7 {folder}arm7.bin -y9 {folder}y9.bin -y7 {folder}y7.bin -t {folder}banner.bin -h {folder}header.bin -d {folder}data -y {folder}overlay".
+                   format(rom=rompatch, folder=outfolder), False)
     # Create xdelta patch
     if not os.path.isfile("xdelta.exe"):
         print("[ERROR] xdelta.exe not found")
     else:
         print("Creating patch ...")
-        os.system("xdelta -f -e -s {rom} {rompatch} {patch}".format(rom=romfile, rompatch=rompatch, patch=patchfile))
+        common.execute("xdelta -f -e -s {rom} {rompatch} {patch}".format(rom=romfile, rompatch=rompatch, patch=patchfile), False)
         print("All done!")

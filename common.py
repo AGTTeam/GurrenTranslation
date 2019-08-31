@@ -1,5 +1,8 @@
 import math
+import os
+import shutil
 import struct
+import subprocess
 import crcmod
 
 debug = False
@@ -45,6 +48,12 @@ class Stream(object):
 
     def readByte(self):
         return struct.unpack("B", self.read(1))[0]
+
+    def readBytes(self, n):
+        ret = ""
+        for i in range(n):
+            ret += toHex(self.readByte()) + " "
+        return ret
 
     def readString(self, length):
         str = ""
@@ -136,12 +145,25 @@ def patchBanner(f, title):
         f.writeUShort(crc)
 
 
+def getHeaderID(file):
+    with Stream(file, "rb") as f:
+        f.seek(12)
+        return f.readString(6)
+
+
 # Strings
 def toHex(byte):
     hexstr = hex(byte)[2:].upper()
     if len(hexstr) == 1:
         return "0" + hexstr
     return hexstr
+
+
+def isAscii(s):
+    for i in range(len(s)):
+        if ord(s[i]) >= 128:
+            return False
+    return True
 
 
 def checkShiftJIS(first, second):
@@ -178,6 +200,33 @@ def getSection(f, title, comment="#"):
     except UnicodeDecodeError:
         return ret
     return ret
+
+
+# Folders
+def makeFolder(folder, clear=True):
+    if clear:
+        clearFolder(folder)
+    os.mkdir(folder)
+
+
+def clearFolder(folder):
+    if os.path.isdir(folder):
+        shutil.rmtree(folder)
+
+
+def copyFolder(f1, f2):
+    clearFolder(f2)
+    shutil.copytree(f1, f2)
+
+
+def copyFile(f1, f2):
+    if os.path.isfile(f2):
+        os.remove(f2)
+    shutil.copyfile(f1, f2)
+
+
+def execute(cmd, show=True):
+    subprocess.call(cmd, stdout=None if (show or debug) else subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
 
 # Generic texture

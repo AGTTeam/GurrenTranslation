@@ -1,13 +1,10 @@
 import os
-import shutil
 import common
 import common_game as game
 
 infolder = "data/extract_NFP/NFP2D.NFP/"
 outfolder = "data/out_KPC/"
-if os.path.isdir(outfolder):
-    shutil.rmtree(outfolder)
-os.mkdir(outfolder)
+common.makeFolder(outfolder)
 
 print("Extracting KPC ...")
 for file in os.listdir(infolder):

@@ -1,5 +1,4 @@
 import os
-import shutil
 import common
 import common_game as game
 
@@ -13,7 +12,7 @@ for file in os.listdir(vscin):
         continue
     pngname = file.replace(".VSC", ".png")
     if not os.path.isfile(vscwork + pngname):
-        shutil.copyfile(vscin + file, vscout + file)
+        common.copyFile(vscin + file, vscout + file)
     else:
         if common.debug:
             print("Processing", file, "...")

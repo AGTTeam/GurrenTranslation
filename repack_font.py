@@ -1,6 +1,5 @@
 import codecs
 import os
-import shutil
 from PIL import Image
 import common
 
@@ -23,6 +22,7 @@ punctuation = [" ", "!", "?", "'", "\"", "“", "”", ",", ".", ":", ";", "(", 
 customs = ["STAR", "NOTE", "PERC", "WAVE"]
 all = upperchars + lowerchars + numbers + punctuation + customs
 
+print("Repacking font ...")
 # X Position in the font.png file
 positions = {}
 for i in range(len(upperchars)):
@@ -43,7 +43,7 @@ with common.Stream(infont, "rb") as font:
         font.seek(0)
         temp.write(font.read(size))
 # Dump the font
-os.system("NerdFontTerminatoR -e " + tempfont + " " + xmlfile + " " + imgfile)
+common.execute("NerdFontTerminatoR -e " + tempfont + " " + xmlfile + " " + imgfile, False)
 
 # Generate the code range
 coderanges = [(0x89, 0x9F), (0xE0, 0xEA)]
@@ -156,8 +156,8 @@ with codecs.open(table, "w", "utf-8") as f:
 img.save(outfile, "PNG")
 
 # Generate the new font
-os.system("NerdFontTerminatoR -i " + xmlfile + " " + outfile + " " + tempfont)
-shutil.copyfile(tempfont, outfont)
+common.execute("NerdFontTerminatoR -i " + xmlfile + " " + outfile + " " + tempfont, False)
+common.copyFile(tempfont, outfont)
 # Clean up the temp files
 os.remove(xmlfile)
 os.remove(imgfile)
