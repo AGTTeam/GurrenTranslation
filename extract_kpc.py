@@ -1,6 +1,7 @@
 import os
 import shutil
 import common
+import common_game as game
 
 infolder = "data/extract_NFP/NFP2D.NFP/"
 outfolder = "data/out_KPC/"
@@ -13,28 +14,28 @@ for file in os.listdir(infolder):
     if not file.endswith(".KPC"):
         continue
     print(" Processing", file, "...")
-    with open(infolder + file, "rb") as f:
+    with common.Stream(infolder + file, "rb") as f:
         # Read header
         f.seek(4)
         bits = []
         for i in range(5):
-            bits.append(common.readByte(f))
-        palcompressed = common.readByte(f) == 1
-        mapcompressed = common.readByte(f) == 1
-        tilecompressed = common.readByte(f) == 1
-        width = common.readUShort(f) * 8
-        height = common.readUShort(f) * 8
-        mapsize = common.readUInt(f)
-        mapoffset = common.readUInt(f)
+            bits.append(f.readByte())
+        palcompressed = f.readByte() == 1
+        mapcompressed = f.readByte() == 1
+        tilecompressed = f.readByte() == 1
+        width = f.readUShort() * 8
+        height = f.readUShort() * 8
+        mapsize = f.readUInt()
+        mapoffset = f.readUInt()
         f.seek(5, 1)
-        bpp = 8 if common.readUShort(f) == 1 else 4
+        bpp = 8 if f.readUShort() == 1 else 4
         f.seek(92)
-        tilesize = common.readUInt(f)
-        tileoffset = common.readUInt(f)
+        tilesize = f.readUInt()
+        tileoffset = f.readUInt()
         f.seek(124)
-        unk = common.readUInt(f)
-        palsize = common.readUInt(f)
-        paloffset = common.readUInt(f)
+        unk = f.readUInt()
+        palsize = f.readUInt()
+        paloffset = f.readUInt()
         if common.debug:
             print("  width:", width, "height:", height, "bpp:", bpp)
             print("  mapsize:", mapsize, "mapoffset:", mapoffset)
@@ -61,5 +62,5 @@ for file in os.listdir(infolder):
         else:
             tiledata = f.read(tilesize)
         # Draw the image
-        img = common.drawMappedImage(width, height, mapdata, tiledata, paldata, 8, bpp)
+        img = game.drawMappedImage(width, height, mapdata, tiledata, paldata, 8, bpp)
         img.save(outfolder + file.replace(".KPC", ".png"), "PNG")

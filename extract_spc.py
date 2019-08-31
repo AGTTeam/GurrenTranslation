@@ -1,6 +1,7 @@
 import codecs
 import os
 import common
+import common_game as game
 
 infolder = "data/extract_NFP/SPC.NFP/"
 outfile = "data/spc_output.txt"
@@ -12,17 +13,17 @@ with codecs.open(outfile, "w", "utf-8") as out:
             continue
         print(" Processing", file, "...")
         first = True
-        with open(infolder + file, "rb") as f:
+        with common.Stream(infolder + file, "rb") as f:
             f.seek(12)  # "SCRP" + filesize + "CODE"
-            codesize = common.readInt(f)
+            codesize = f.readUInt()
             if codesize > 10:
                 f.seek(6, 1)
                 while f.tell() < 16 + codesize - 2:
                     pos = f.tell()
-                    byte = common.readByte(f)
+                    byte = f.readByte()
                     if byte == 0x10:
                         try:
-                            sjis = common.readShiftJIS(f)
+                            sjis = game.readShiftJIS(f)
                             if sjis != "":
                                 if common.debug:
                                     print("  Found string at", pos, "with length", len(sjis))
@@ -35,9 +36,9 @@ with codecs.open(outfile, "w", "utf-8") as out:
                             print("  [ERROR] UnicodeDecodeError")
                     elif byte == 0x15:
                         f.seek(1, 1)
-                        bytelen = common.readByte(f)
+                        bytelen = f.readByte()
                         f.seek(8 * bytelen, 1)
-                    elif byte in common.spccodes:
-                        f.seek(common.spccodes[byte], 1)
+                    elif byte in game.spccodes:
+                        f.seek(game.spccodes[byte], 1)
                     elif common.debug:
                         print("  Unknown byte", common.toHex(byte), "at", pos)

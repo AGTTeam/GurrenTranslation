@@ -36,10 +36,10 @@ for i in range(len(customs)):
     positions[customs[i]] = (len(upperchars) * 12) + (len(numbers) * 6) + (len(punctuation) * 6) + (i * 12)
 
 # Fix the font size before dumping it
-with open(infont, "rb") as font:
-    with open(tempfont, "wb") as temp:
+with common.Stream(infont, "rb") as font:
+    with common.Stream(tempfont, "wb") as temp:
         font.seek(8)
-        size = common.readUInt(font)
+        size = font.readUInt()
         font.seek(0)
         temp.write(font.read(size))
 # Dump the font

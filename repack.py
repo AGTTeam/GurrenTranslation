@@ -59,22 +59,22 @@ for file in os.listdir(infolder):
     # The file list is padded with 0s if it doesn't start at a multiple of 16
     datapos += datapos % 16
     print(" Repacking", file, "with", filenum, "files ...")
-    with open(outfolder + "data/" + file, "wb") as f:
-        common.writeString(f, "NFP2.0 (c)NOBORI 1997-2006")
-        common.writeZero(f, 26)
-        common.writeInt(f, filenum)
-        common.writeInt(f, 0x50)
-        common.writeInt(f, datapos)
+    with common.Stream(outfolder + "data/" + file, "wb") as f:
+        f.writeString("NFP2.0 (c)NOBORI 1997-2006")
+        f.writeZero(26)
+        f.writeInt(filenum)
+        f.writeInt(0x50)
+        f.writeInt(datapos)
         for i in range(filenum):
             subfile = subfiles[i]
             subfilepath = infolder + file + "/" + subfile
             filesize = os.path.getsize(subfilepath)
             f.seek(80 + (24 * i))
-            common.writeString(f, subfile)
+            f.writeString(subfile)
             if len(subfile) < 16:
-                common.writeZero(f, 16 - len(subfile))
-            common.writeInt(f, datapos)
-            common.writeInt(f, filesize * 4)
+                f.writeZero(16 - len(subfile))
+            f.writeInt(datapos)
+            f.writeInt(filesize * 4)
             f.seek(datapos)
             with open(subfilepath, "rb") as newf:
                 f.write(newf.read(filesize))
@@ -83,7 +83,7 @@ for file in os.listdir(infolder):
 # Patch banner.bin
 print("Patching banner.bin ...")
 title = "Tengen Toppa\nGurren Lagann\nKonami Digital Entertainment"
-with open(outfolder + "banner.bin", "r+b") as f:
+with common.Stream(outfolder + "banner.bin", "r+b") as f:
     common.patchBanner(f, title)
 
 # Repack ROM

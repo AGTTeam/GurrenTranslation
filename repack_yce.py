@@ -32,7 +32,7 @@ for file in os.listdir(ycein):
     pixels = imgin.load()
     images = pickle.loads(base64.standard_b64decode(sections[file][0]))
     currheight = 0
-    with open(yceout + file, "r+b") as f:
+    with common.Stream(yceout + file, "r+b") as f:
         for img in images:
             # Read palette
             palette = []
@@ -50,5 +50,5 @@ for file in os.listdir(ycein):
                             for j2 in range(0, 8, 2):
                                 index2 = common.getPaletteIndex(palette, pixels[oam.x + j * 8 + j2, currheight + oam.y + i * 8 + i2])
                                 index1 = common.getPaletteIndex(palette, pixels[oam.x + j * 8 + j2 + 1, currheight + oam.y + i * 8 + i2])
-                                common.writeByte(f, ((index1) << 4) | index2)
+                                f.writeByte(((index1) << 4) | index2)
             currheight += max(img.height, 10)

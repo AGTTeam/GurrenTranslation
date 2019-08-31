@@ -36,13 +36,13 @@ with open(dgfile, "r") as dg:
                 img = Image.open(dgwork + pngname)
                 img = img.convert("RGBA")
                 pixels = img.load()
-                with open(dgout + file, "r+b") as f:
+                with common.Stream(dgout + file, "r+b") as f:
                     # Read palette
                     if texformat != 7:
                         f.seek(paloffset)
                         paldata = []
                         for i in range(palsize // 2):
-                            p = common.readShort(f)
+                            p = f.readShort()
                             paldata.append(common.readPalette(p))
                     # Write new texture data
                     f.seek(texoffset)
@@ -58,13 +58,13 @@ with open(dgfile, "r") as dg:
                             for j in range(0, texwidth, 2):
                                 index2 = common.getPaletteIndex(paldata, pixels[j, i])
                                 index1 = common.getPaletteIndex(paldata, pixels[j + 1, i])
-                                common.writeByte(f, ((index1) << 4) | index2)
+                                f.writeByte(((index1) << 4) | index2)
                     # 256-color Palette
                     elif texformat == 4:
                         for i in range(texheight):
                             for j in range(texwidth):
                                 index = common.getPaletteIndex(paldata, pixels[j, i])
-                                common.writeByte(f, index)
+                                f.writeByte(index)
                     # 4x4-Texel Compressed Texture
                     elif texformat == 5:
                         print(" [ERROR] Texture format 5 not implemented")

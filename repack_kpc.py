@@ -1,6 +1,7 @@
 import os
 import shutil
 import common
+import common_game as game
 
 kpcin = "data/extract_NFP/NFP2D.NFP/"
 kpcwork = "data/work_KPC/"
@@ -19,17 +20,17 @@ for file in os.listdir(kpcin):
     else:
         if common.debug:
             print("Processing", file, "...")
-        with open(kpcin + file, "rb") as fin:
-            with open(kpcout + file, "wb") as f:
+        with common.Stream(kpcin + file, "rb") as fin:
+            with common.Stream(kpcout + file, "wb") as f:
                 # Find palette offset
                 fin.seek(9)
-                palcompressed = common.readByte(fin) == 1
+                palcompressed = fin.readByte() == 1
                 fin.seek(2, 1)
-                width = common.readUShort(fin) * 8
-                height = common.readUShort(fin) * 8
+                width = fin.readUShort() * 8
+                height = fin.readUShort() * 8
                 fin.seek(128)
-                palsize = common.readUInt(fin)
-                paloffset = common.readUInt(fin)
+                palsize = fin.readUInt()
+                paloffset = fin.readUInt()
                 # Read palette
                 fin.seek(paloffset)
                 palettes = []
@@ -38,7 +39,7 @@ for file in os.listdir(kpcin):
                 else:
                     paldata = fin.read(palsize)
                 # Fix transparency for EQ_M0* files since their palette colors 0 and 1 are the same.
-                tiles, maps = common.readMappedImage(kpcwork + pngname, width, height, paldata, file.startswith("EQ_M0"))
+                tiles, maps = game.readMappedImage(kpcwork + pngname, width, height, paldata, file.startswith("EQ_M0"))
                 # Copy the header
                 fin.seek(0)
                 f.write(fin.read(192))
@@ -46,34 +47,34 @@ for file in os.listdir(kpcin):
                 mapstart = f.tell()
                 for map in maps:
                     mapdata = (map[0] << 12) + (map[1] << 11) + (map[2] << 10) + map[3]
-                    common.writeUShort(f, mapdata)
+                    f.writeUShort(mapdata)
                 mapend = f.tell()
-                common.writeByte(f, 0)
+                f.writeByte(0)
                 # Write tile data
                 tilestart = f.tell()
                 for tile in tiles:
                     for i in range(32):
                         index2 = tile[i * 2]
                         index1 = tile[i * 2 + 1]
-                        common.writeByte(f, ((index1) << 4) | index2)
+                        f.writeByte(((index1) << 4) | index2)
                 tileend = f.tell()
-                common.writeByte(f, 0)
+                f.writeByte(0)
                 # Write palette
                 palstart = f.tell()
                 f.write(paldata)
                 palend = f.tell()
-                common.writeByte(f, 0)
+                f.writeByte(0)
                 # Write header data
                 f.seek(9)
-                common.writeByte(f, 0)
-                common.writeByte(f, 0)
-                common.writeByte(f, 0)
+                f.writeByte(0)
+                f.writeByte(0)
+                f.writeByte(0)
                 f.seek(16)
-                common.writeUInt(f, mapend - mapstart)
-                common.writeUInt(f, mapstart)
+                f.writeUInt(mapend - mapstart)
+                f.writeUInt(mapstart)
                 f.seek(92)
-                common.writeUInt(f, tileend - tilestart)
-                common.writeUInt(f, tilestart)
+                f.writeUInt(tileend - tilestart)
+                f.writeUInt(tilestart)
                 f.seek(128)
-                common.writeUInt(f, palend - palstart)
-                common.writeUInt(f, palstart)
+                f.writeUInt(palend - palstart)
+                f.writeUInt(palstart)

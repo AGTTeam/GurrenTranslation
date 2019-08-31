@@ -37,35 +37,35 @@ with open(outfile, "w") as dg:
             continue
         print(" Processing", file, "...")
         first = True
-        with open(infolder + file, "rb") as f:
+        with common.Stream(infolder + file, "rb") as f:
             # Skip the 3DKT header
             f.seek(8)
-            nsbmdstart = common.readUShort(f)
+            nsbmdstart = f.readUShort()
             # Read the TEX0 offset
             f.seek(nsbmdstart + 20)
-            texstart = common.readUShort(f)
+            texstart = f.readUShort()
             # If texstart points to MDL0, the model doesn't have any texture
             if texstart == 17485:  # MDL0
                 continue
             blockoffset = nsbmdstart + texstart
             # Read TEX0 block
             f.seek(blockoffset + 4)
-            blocksize = common.readUInt(f)
+            blocksize = f.readUInt()
             blocklimit = blocksize + blockoffset
             f.seek(4, 1)
-            texdatasize = common.readUShort(f) * 8
+            texdatasize = f.readUShort() * 8
             f.seek(6, 1)
-            texdataoffset = common.readUInt(f) + blockoffset
+            texdataoffset = f.readUInt() + blockoffset
             f.seek(4, 1)
-            sptexsize = common.readUShort(f) * 8
+            sptexsize = f.readUShort() * 8
             f.seek(6, 1)
-            sptexoffset = common.readUInt(f) + blockoffset
-            spdataoffset = common.readUInt(f) + blockoffset
+            sptexoffset = f.readUInt() + blockoffset
+            spdataoffset = f.readUInt() + blockoffset
             f.seek(4, 1)
-            paldatasize = common.readUShort(f) * 8
+            paldatasize = f.readUShort() * 8
             f.seek(2, 1)
-            paldefoffset = common.readUInt(f) + blockoffset
-            paldataoffset = common.readUInt(f) + blockoffset
+            paldefoffset = f.readUInt() + blockoffset
+            paldataoffset = f.readUInt() + blockoffset
             if common.debug:
                 print("  blocksize:", blocksize, "blocklimit:", blocklimit)
                 print("  texdataoffset:", texdataoffset, "texdatasize:", texdatasize)
@@ -73,10 +73,10 @@ with open(outfile, "w") as dg:
                 print("  paldataoffset:", paldataoffset, "paldatasize:", paldatasize, "paldefoffset:", paldefoffset)
             # Texture definition
             f.seek(1, 1)
-            texnum = common.readByte(f)
+            texnum = f.readByte()
             pos = f.tell()
             f.seek(paldefoffset + 1)
-            palnum = common.readByte(f)
+            palnum = f.readByte()
             f.seek(pos)
             if common.debug:
                 print("  texnum:", texnum, "palnum:", palnum)
@@ -84,8 +84,8 @@ with open(outfile, "w") as dg:
             textures = []
             palettes = []
             for i in range(texnum):
-                offset = common.readUShort(f) * 8
-                param = common.readUShort(f)
+                offset = f.readUShort() * 8
+                param = f.readUShort()
                 f.seek(4, 1)
                 tex = Texture()
                 tex.format = (param >> 10) & 7
@@ -99,14 +99,14 @@ with open(outfile, "w") as dg:
                 textures.append(tex)
             # Texture name
             for tex in textures:
-                tex.name = common.readString(f, 16)
+                tex.name = f.readString(16)
                 if common.debug:
                     print("  Texture", tex.name, "format:", tex.format, "width:", tex.width, "height:", tex.height, "size:", tex.size, "offset:", tex.offset)
             # Palette definition
             f.seek(paldefoffset + 2 + 14 + (palnum * 4))
             for i in range(palnum):
                 pal = Palette()
-                pal.offset = (common.readUShort(f) * 8) + paldataoffset
+                pal.offset = (f.readUShort() * 8) + paldataoffset
                 f.seek(2, 1)
                 palettes.append(pal)
             # Palette size
@@ -122,7 +122,7 @@ with open(outfile, "w") as dg:
                 palettes[i].size = blocklimit - palettes[i].offset
             # Palette name
             for pal in palettes:
-                pal.name = common.readString(f, 16)
+                pal.name = f.readString(16)
                 if common.debug:
                     print("  Palette", pal.name, "size:", pal.size, "offset:", pal.offset)
             # Traverse palette
@@ -130,7 +130,7 @@ with open(outfile, "w") as dg:
                 f.seek(pal.offset)
                 pal.data = []
                 for i in range(pal.size // 2):
-                    pal.data.append(common.readPalette(common.readShort(f)))
+                    pal.data.append(common.readPalette(f.readShort()))
             # Traverse texture
             for texi in range(len(textures)):
                 tex = textures[texi]
@@ -152,14 +152,14 @@ with open(outfile, "w") as dg:
                     f.seek(spdataoffset)
                     spdata = []
                     for i in range(r // 2):
-                        spdata.append(common.readUShort(f))
+                        spdata.append(f.readUShort())
                     spdataoffset += r
                 # Export texture
                 f.seek(tex.offset)
                 if tex.format == 5:
                     data = []
                     for i in range(tex.size // 4):
-                        data.append(common.readUInt(f))
+                        data.append(f.readUInt())
                 else:
                     data = f.read(tex.size)
                 if tex.format != 7:

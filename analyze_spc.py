@@ -1,13 +1,14 @@
 import codecs
 import sys
 import common
+import common_game as game
 
 infolder = "data/work_NFP/SPC.NFP/" if "-p" in sys.argv else "data/extract_NFP/SPC.NFP/"
 outfile = "data/analyze_spc.txt"
 functions = {}
-common.loadTable()
+game.loadTable()
 inversetable = {}
-for bigram, code in common.table.items():
+for bigram, code in game.table.items():
     inversetable[code] = bigram
 
 
@@ -23,25 +24,25 @@ def writeLine(out, pos, byte, line):
 def readBytes(f, n):
     ret = ""
     for i in range(n):
-        ret += common.toHex(common.readByte(f)) + " "
+        ret += common.toHex(f.readByte()) + " "
     return ret
 
 
 with codecs.open(outfile, "w", "utf-8") as out:
     out.write(sys.argv[1] + "  \n")
-    with open(infolder + sys.argv[1], "rb") as f:
+    with common.Stream(infolder + sys.argv[1], "rb") as f:
         f.seek(12)  # "SCRP" + filesize + "CODE"
-        codesize = common.readInt(f)
+        codesize = f.readUInt()
         if codesize > 10:
             f.seek(16 + codesize + 8)
             while True:
-                function = common.readNullString(f)
+                function = f.readNullString()
                 if function == "":
                     break
                 # Read the pointers until we find 0
                 i = 0
                 while True:
-                    pointer = common.readUInt(f)
+                    pointer = f.readUInt()
                     if pointer == 0:
                         break
                     else:
@@ -53,23 +54,23 @@ with codecs.open(outfile, "w", "utf-8") as out:
             f.seek(16 + 6)
             while f.tell() < 16 + codesize - 2:
                 pos = f.tell()
-                byte = common.readByte(f)
+                byte = f.readByte()
                 if byte == 0x10:
                     line = readBytes(f, 2)
                     f.seek(-2, 1)
                     convert = ""
                     if "-p" in sys.argv:
-                        sjislen = common.readUShort(f)
+                        sjislen = f.readUShort()
                         try:
                             i = 0
                             while i < sjislen - 1:
-                                strbyte = common.readByte(f)
-                                if strbyte in common.codes:
+                                strbyte = f.readByte()
+                                if strbyte in game.codes:
                                     convert += "<" + common.toHex(strbyte) + ">"
                                     i += 1
                                 else:
                                     f.seek(-1, 1)
-                                    char = common.toHex(common.readByte(f)) + common.toHex(common.readByte(f))
+                                    char = common.toHex(f.readByte()) + common.toHex(f.readByte())
                                     convert += inversetable[char]
                                     i += 2
                         except KeyError:
@@ -78,12 +79,12 @@ with codecs.open(outfile, "w", "utf-8") as out:
                         line += "\"" + convert + "\" "
                     else:
                         f.seek(pos + 1)
-                        sjis = common.readShiftJIS(f)
+                        sjis = game.readShiftJIS(f)
                         if sjis != "":
                             line += "\"" + sjis + "\" "
                         else:
                             f.seek(pos + 1)
-                            asciilen = common.readUShort(f)
+                            asciilen = f.readUShort()
                             asciistr = f.read(asciilen - 1)
                             line += "\"" + asciistr.decode("ascii").replace("\r", "").replace("\n", "") + "\" "
                     line += readBytes(f, 9)
@@ -91,12 +92,12 @@ with codecs.open(outfile, "w", "utf-8") as out:
                 elif byte == 0x15:
                     line = readBytes(f, 2)
                     f.seek(-1, 1)
-                    bytelen = common.readByte(f)
+                    bytelen = f.readByte()
                     for i in range(bytelen):
                         line += readBytes(f, 8)
                     writeLine(out, pos, byte, line)
-                elif byte in common.spccodes:
-                    writeLine(out, pos, byte, readBytes(f, common.spccodes[byte]))
+                elif byte in game.spccodes:
+                    writeLine(out, pos, byte, readBytes(f, game.spccodes[byte]))
                 else:
                     writeLine(out, pos, byte, "Unknown!")
             for k, v in functions.items():

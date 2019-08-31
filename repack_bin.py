@@ -3,6 +3,7 @@ import os
 import shutil
 import struct
 import common
+import common_game as game
 
 binin = "data/extract/arm9.bin"
 binout = "data/repack/arm9.bin"
@@ -20,24 +21,24 @@ with codecs.open(binfile, "r", "utf-8") as bin:
     section = common.getSection(bin, "")
 
 print("Repacking BIN ...")
-common.loadTable()
+game.loadTable()
 insize = os.path.getsize(binin)
 rangepos = freeranges[currentrange][0]
-with open(binin, "rb") as fi:
+with common.Stream(binin, "rb") as fi:
     allbin = fi.read()
-    with open(binout, "r+b") as fo:
+    with common.Stream(binout, "r+b") as fo:
         # Skip the beginning and end of the file to avoid false-positives
         fi.seek(992000)
         while fi.tell() < 1180000:
             pos = fi.tell()
             if pos < 1010000 or pos > 1107700:
-                check = common.detectShiftJIS(fi)
+                check = game.detectShiftJIS(fi)
                 if check in section and section[check][0] != "":
                     if common.debug:
                         print(" Replacing string at", pos)
                     fo.seek(pos)
                     endpos = fi.tell() - 1
-                    newlen = common.writeShiftJIS(fo, section[check][0], False, endpos - pos)
+                    newlen = game.writeShiftJIS(fo, section[check][0], False, endpos - pos)
                     if newlen < 0:
                         if rangepos >= freeranges[currentrange][1] and common.warning:
                             print("  [WARNING] No more room! Skipping ...")
@@ -46,8 +47,8 @@ with open(binin, "rb") as fi:
                             if common.debug:
                                 print("  No room for the string, redirecting to", rangepos)
                             fo.seek(rangepos)
-                            common.writeShiftJIS(fo, section[check][0], False)
-                            common.writeZero(fo, 1)
+                            game.writeShiftJIS(fo, section[check][0], False)
+                            fo.writeZero(1)
                             newpointer = 0x02000000 + rangepos
                             rangepos = fo.tell()
                             # Search and replace the old pointer
@@ -61,12 +62,12 @@ with open(binin, "rb") as fi:
                                 if common.debug:
                                     print("  Replaced pointer at", str(index))
                                 fo.seek(index)
-                                common.writeUInt(fo, newpointer)
+                                fo.writeUInt(newpointer)
                                 index += 4
                             if rangepos >= freeranges[currentrange][1]:
                                 if currentrange + 1 < len(freeranges):
                                     currentrange += 1
                                     rangepos = freeranges[currentrange][0]
                     else:
-                        common.writeZero(fo, endpos - fo.tell())
+                        fo.writeZero(endpos - fo.tell())
             fi.seek(pos + 1)

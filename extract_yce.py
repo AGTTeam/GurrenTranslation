@@ -5,6 +5,7 @@ import shutil
 import struct
 from PIL import Image
 import common
+import common_game as game
 
 infolder = "data/extract_NFP/NFP2D.NFP/"
 outfolder = "data/out_YCE/"
@@ -19,33 +20,33 @@ with open(outfile, "w") as yce:
         if not file.endswith(".YCE"):
             continue
         print(" Processing", file, "...")
-        with open(infolder + file, "rb") as f:
+        with common.Stream(infolder + file, "rb") as f:
             # Read header
             f.seek(8)
-            size = common.readUInt(f)  # size - header (7)
+            size = f.readUInt()  # size - header (7)
             f.seek(4, 1)  # Always 0
             f.seek(4, 1)  # Always 24
-            animoffset = common.readUInt(f)  # Animation data offset
-            unk = common.readUInt(f)  # ?
-            num = common.readUInt(f)  # Number of images
+            animoffset = f.readUInt()  # Animation data offset
+            unk = f.readUInt()  # ?
+            num = f.readUInt()  # Number of images
             images = []
             for i in range(num):
-                img = common.YCETexture()
-                img.offset = common.readUInt(f) + 24  # Image data offset
+                img = game.YCETexture()
+                img.offset = f.readUInt() + 24  # Image data offset
                 images.append(img)
             for img in images:
                 if common.debug:
                     print("  Reading image at offset", img.offset, "...")
                 f.seek(img.offset)
-                img.size = common.readUInt(f)  # Image data size
-                constant = common.readUInt(f)  # 0x1C
+                img.size = f.readUInt()  # Image data size
+                constant = f.readUInt()  # 0x1C
                 if constant != 0x1C and common.debug:
                     print("   Constant is not 0x1C!", common.toHex(constant))
-                img.oamnum = common.readUInt(f)  # Number of OAMs
-                img.oamsize = common.readUInt(f)  # OAM data size
-                img.tilesize = common.readUInt(f)  # Tile data size
-                img.paloffset = common.readUInt(f) + img.offset  # Palette data offset (relative to offset)
-                constant = common.readUInt(f)  # 0x01
+                img.oamnum = f.readUInt()  # Number of OAMs
+                img.oamsize = f.readUInt()  # OAM data size
+                img.tilesize = f.readUInt()  # Tile data size
+                img.paloffset = f.readUInt() + img.offset  # Palette data offset (relative to offset)
+                constant = f.readUInt()  # 0x01
                 if constant != 0x01 and common.debug:
                     print("   Constant 2 is not 0x01!", common.toHex(constant))
                 if common.debug:
@@ -53,20 +54,20 @@ with open(outfile, "w") as yce:
                     print("   tilesize:", img.tilesize, "paloffset:", img.paloffset)
                 img.oams = []
                 for j in range(img.oamnum):
-                    oam = common.OAM()
-                    oam.x = common.readShort(f)  # X position of the cell (-128 to 127)
-                    oam.y = common.readShort(f)  # Y position of the cell (-256 to 255)
+                    oam = game.OAM()
+                    oam.x = f.readShort()  # X position of the cell (-128 to 127)
+                    oam.y = f.readShort()  # Y position of the cell (-256 to 255)
                     for x in range(8):
-                        unkbyte = common.readByte(f)
+                        unkbyte = f.readByte()
                         if unkbyte != 0x00 and common.debug:
                             print("   unkbyte", x, "is not 0x00!", common.toHex(unkbyte))
-                    shape = common.readByte(f)  # NCER OBJ Shape
-                    size = common.readByte(f)  # NCER OBJ Size
+                    shape = f.readByte()  # NCER OBJ Shape
+                    size = f.readByte()  # NCER OBJ Size
                     for x in range(2):
-                        unkbyte = common.readByte(f)
+                        unkbyte = f.readByte()
                         if unkbyte != 0x00 and common.debug:
                             print("   unkbyte2", x, "is not 0x00!", common.toHex(unkbyte))
-                    oam.offset = common.readUInt(f)
+                    oam.offset = f.readUInt()
                     # Table from http://www.romhacking.net/documents/%5B469%5Dnds_formats.htm#NCER
                     if shape == 0:
                         if size == 0:
