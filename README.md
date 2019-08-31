@@ -1,10 +1,10 @@
 # Gurren Translation
 ## Prerequisites
-* Install Python 3.7 https://www.python.org/downloads/
+* Install [Python 3.7](https://www.python.org/downloads/)
 * Run "pip install pillow"
 * Run "pip install crcmod"
-* Download ndstool.exe and place it inside this folder https://www.darkfader.net/ds/files/ndstool.exe
-* Download NerdFontTerminatoR.exe and place it inside this folder https://github.com/pleonex/NerdFontTerminatoR/releases
+* Download [ndstool.exe](https://www.darkfader.net/ds/files/ndstool.exe) and place it inside this folder
+* Download [NerdFontTerminatoR.exe](https://github.com/pleonex/NerdFontTerminatoR/releases) and place it inside this folde
 * Download xdelta.exe and place it inside this folder
 ## Extraction
 * Copy the rom as "rom.nds" inside a "data" folder
