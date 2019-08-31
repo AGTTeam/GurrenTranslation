@@ -2,8 +2,8 @@ import os
 import shutil
 import common
 
-infolder = "extract_NFP/NFP2D.NFP/"
-outfolder = "work_KPC/"
+infolder = "data/extract_NFP/NFP2D.NFP/"
+outfolder = "data/out_KPC/"
 if os.path.isdir(outfolder):
     shutil.rmtree(outfolder)
 os.mkdir(outfolder)

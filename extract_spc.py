@@ -2,8 +2,8 @@ import codecs
 import os
 import common
 
-infolder = "extract_NFP/SPC.NFP/"
-outfile = "spc_input.txt"
+infolder = "data/extract_NFP/SPC.NFP/"
+outfile = "data/spc_output.txt"
 
 print("Extracting SPC ...")
 with codecs.open(outfile, "w", "utf-8") as out:

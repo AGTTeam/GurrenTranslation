@@ -3,13 +3,13 @@ import shutil
 from PIL import Image
 import common
 
-dgin = "extract_NFP/NFP3D.NFP/"
-dgwork = "work_3DG/"
-dgout = "work_NFP/NFP3D.NFP/"
+dgin = "data/extract_NFP/NFP3D.NFP/"
+dgwork = "data/work_3DG/"
+dgout = "data/work_NFP/NFP3D.NFP/"
 if os.path.isdir(dgout):
     shutil.rmtree(dgout)
 os.mkdir(dgout)
-dgfile = "3dg_data.txt"
+dgfile = "data/3dg_data.txt"
 
 print("Repacking 3DG ...")
 with open(dgfile, "r") as dg:

@@ -3,9 +3,9 @@ import shutil
 from PIL import Image
 import common
 
-infolder = "extract_NFP/NFP3D.NFP/"
-outfolder = "work_3DG/"
-outfile = "3dg_data.txt"
+infolder = "data/extract_NFP/NFP3D.NFP/"
+outfolder = "data/out_3DG/"
+outfile = "data/3dg_data.txt"
 if os.path.isdir(outfolder):
     shutil.rmtree(outfolder)
 os.mkdir(outfolder)
@@ -151,7 +151,6 @@ with open(outfile, "w") as dg:
                     r = tex.size >> 1
                     f.seek(spdataoffset)
                     spdata = []
-                    spdata2 = []
                     for i in range(r // 2):
                         spdata.append(common.readUShort(f))
                     spdataoffset += r

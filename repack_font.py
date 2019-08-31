@@ -4,16 +4,16 @@ import shutil
 from PIL import Image
 import common
 
-xmlfile = "fontdump.xml"
-imgfile = "fontdump.png"
+xmlfile = "data/fontdump.xml"
+imgfile = "data/fontdump.png"
 fontfile = "font.png"
-outfile = "fontout.png"
-infont = "extract_NFP/ETC.NFP/GL_12FNT.NFT"
-tempfont = "GL_12FNT.NFTR"
-outfont = "work_NFP/ETC.NFP/GL_12FNT.NFT"
-binin = "bin_input.txt"
-spcin = "spc_input.txt"
-table = "table.txt"
+outfile = "data/fontout.png"
+infont = "data/extract_NFP/ETC.NFP/GL_12FNT.NFT"
+tempfont = "data/GL_12FNT.NFTR"
+outfont = "data/work_NFP/ETC.NFP/GL_12FNT.NFT"
+binin = "data/bin_input.txt"
+spcin = "data/spc_input.txt"
+table = "data/table.txt"
 
 # List of characters
 upperchars = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]

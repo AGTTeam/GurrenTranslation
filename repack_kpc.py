@@ -2,9 +2,9 @@ import os
 import shutil
 import common
 
-kpcin = "extract_NFP/NFP2D.NFP/"
-kpcwork = "work_KPC/"
-kpcout = "work_NFP/NFP2D.NFP/"
+kpcin = "data/extract_NFP/NFP2D.NFP/"
+kpcwork = "data/work_KPC/"
+kpcout = "data/work_NFP/NFP2D.NFP/"
 if os.path.isdir(kpcout):
     shutil.rmtree(kpcout)
 os.mkdir(kpcout)

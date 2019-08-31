@@ -4,9 +4,9 @@ import shutil
 import struct
 import common
 
-binin = "extract/arm9.bin"
-binout = "repack/arm9.bin"
-binfile = "bin_input.txt"
+binin = "data/extract/arm9.bin"
+binout = "data/repack/arm9.bin"
+binfile = "data/bin_input.txt"
 if os.path.isfile(binout):
     os.remove(binout)
 shutil.copyfile(binin, binout)

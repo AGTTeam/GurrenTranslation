@@ -3,12 +3,12 @@ import os
 import shutil
 import common
 
-spcin = "extract_NFP/SPC.NFP/"
-spcout = "work_NFP/SPC.NFP/"
+spcin = "data/extract_NFP/SPC.NFP/"
+spcout = "data/work_NFP/SPC.NFP/"
 if os.path.isdir(spcout):
     shutil.rmtree(spcout)
 os.mkdir(spcout)
-spcfile = "spc_input.txt"
+spcfile = "data/spc_input.txt"
 
 
 def convertPointer(pointer, pointerdiff):

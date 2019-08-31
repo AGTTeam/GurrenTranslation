@@ -1,7 +1,17 @@
 import os
 import shutil
+import common
 
-outfolder = "extract/"
+romfile = "data/rom.nds"
+extractfolder = "data/extract/"
+infolder = "data/extract/data/"
+outfolder = "data/extract_NFP/"
+if os.path.isdir(outfolder):
+    shutil.rmtree(outfolder)
+os.mkdir(outfolder)
+workfolder = "data/work_NFP/"
+if os.path.isdir(workfolder):
+    shutil.rmtree(workfolder)
 
 if not os.path.isfile("ndstool.exe"):
     print("[ERROR] ndstool.exe not found")
@@ -10,4 +20,34 @@ else:
     if os.path.isdir(outfolder):
         shutil.rmtree(outfolder)
     os.mkdir(outfolder)
-    os.system("ndstool -x rom.nds -9 extract/arm9.bin -7 extract/arm7.bin -y9 extract/y9.bin -y7 extract/y7.bin -t extract/banner.bin -h extract/header.bin -d extract/data -y extract/overlay")
+    os.system("ndstool -x {rom} -9 {folder}arm9.bin -7 {folder}arm7.bin -y9 {folder}y9.bin -y7 {folder}y7.bin -t {folder}banner.bin -h {folder}header.bin -d {folder}data -y {folder}overlay".
+              format(rom=romfile, folder=extractfolder))
+
+    print("Extracting NFP ...")
+    for file in os.listdir(infolder):
+        print(" Processing", file, "...")
+        os.mkdir(outfolder + file)
+        with open(infolder + file, "rb") as f:
+            f.seek(52)  # Header: NFP2.0 (c)NOBORI 1997-2006
+            filenum = common.readInt(f)
+            f.seek(4, 1)  # Always 0x50
+            datastart = common.readInt(f)
+            f.seek(16, 1)  # All 0
+            print("  Found", filenum, "files, data starting at", datastart)
+            for i in range(filenum):
+                # Filenames are always 16 bytes long, padded with 0s
+                subname = common.readString(f, 16)
+                # Read starting position and size (multiplied by 4)
+                startpos = common.readInt(f)
+                size = common.readInt(f) // 4
+                # Extract the file
+                if common.debug:
+                    print("  Extracting", subname, "starting at", startpos, "with size", size)
+                savepos = f.tell()
+                f.seek(startpos)
+                with open(outfolder + file + "/" + subname, "wb") as newf:
+                    newf.write(f.read(size))
+                f.seek(savepos)
+
+    # Copy everything to the work folder
+    shutil.copytree(outfolder, workfolder)

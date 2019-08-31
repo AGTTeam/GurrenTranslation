@@ -6,9 +6,9 @@ import struct
 from PIL import Image
 import common
 
-infolder = "extract_NFP/NFP2D.NFP/"
-outfolder = "work_YCE/"
-outfile = "yce_data.txt"
+infolder = "data/extract_NFP/NFP2D.NFP/"
+outfolder = "data/out_YCE/"
+outfile = "data/yce_data.txt"
 if os.path.isdir(outfolder):
     shutil.rmtree(outfolder)
 os.mkdir(outfolder)

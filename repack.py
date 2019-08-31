@@ -3,9 +3,13 @@ import shutil
 import sys
 import common
 
-extractfolder = "extract/"
-infolder = "work_NFP/"
-outfolder = "repack/"
+romfile = "data/rom.nds"
+rompatch = "data/rom_patched.nds"
+patchfile = "data/patch.xdelta"
+extractfolder = "data/extract/"
+debfolder = "data/extract_NFP/"
+infolder = "data/work_NFP/"
+outfolder = "data/repack/"
 if os.path.isdir(outfolder):
     shutil.rmtree(outfolder)
 os.mkdir(outfolder)
@@ -41,9 +45,9 @@ if all or "-yce" in sys.argv:
     os.system("python repack_yce.py")
 
 if "-deb" in sys.argv:
-    shutil.copyfile("extract_NFP/SPC.NFP/S_DEBUG.SPC", infolder + "SPC.NFP/S_MAIN.SPC")
+    shutil.copyfile(debfolder + "SPC.NFP/S_DEBUG.SPC", infolder + "SPC.NFP/S_MAIN.SPC")
 else:
-    shutil.copyfile("extract_NFP/SPC.NFP/S_MAIN.SPC", infolder + "SPC.NFP/S_MAIN.SPC")
+    shutil.copyfile(debfolder + "SPC.NFP/S_MAIN.SPC", infolder + "SPC.NFP/S_MAIN.SPC")
 
 # Repack NFP
 print("Repacking NFP ...")
@@ -87,11 +91,12 @@ if not os.path.isfile("ndstool.exe"):
     print("[ERROR] ndstool.exe not found")
 else:
     print("Repacking ROM ...")
-    os.system("ndstool -c rom_patched.nds -9 repack/arm9.bin -7 repack/arm7.bin -y9 repack/y9.bin -y7 repack/y7.bin -t repack/banner.bin -h repack/header.bin -d repack/data -y repack/overlay")
+    os.system("ndstool -c {rom} -9 {folder}arm9.bin -7 {folder}arm7.bin -y9 {folder}y9.bin -y7 {folder}y7.bin -t {folder}banner.bin -h {folder}header.bin -d {folder}data -y {folder}overlay".
+              format(rom=rompatch, folder=outfolder))
     # Create xdelta patch
     if not os.path.isfile("xdelta.exe"):
         print("[ERROR] xdelta.exe not found")
     else:
         print("Creating patch ...")
-        os.system("xdelta -f -e -s rom.nds rom_patched.nds patch.xdelta")
+        os.system("xdelta -f -e -s {rom} {rompatch} {patch}".format(rom=romfile, rompatch=rompatch, patch=patchfile))
         print("All done!")

@@ -2,8 +2,8 @@ import codecs
 import sys
 import common
 
-infolder = "work_NFP/SPC.NFP/" if "-p" in sys.argv else "extract_NFP/SPC.NFP/"
-outfile = "analyze_spc.txt"
+infolder = "data/work_NFP/SPC.NFP/" if "-p" in sys.argv else "data/extract_NFP/SPC.NFP/"
+outfile = "data/analyze_spc.txt"
 functions = {}
 common.loadTable()
 inversetable = {}

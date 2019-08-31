@@ -6,10 +6,10 @@ import struct
 from PIL import Image
 import common
 
-ycein = "extract_NFP/NFP2D.NFP/"
-ycework = "work_YCE/"
-yceout = "work_NFP/NFP2D.NFP/"
-ycefile = "yce_data.txt"
+ycein = "data/extract_NFP/NFP2D.NFP/"
+ycework = "data/work_YCE/"
+yceout = "data/work_NFP/NFP2D.NFP/"
+ycefile = "data/yce_data.txt"
 
 sections = {}
 with open(ycefile, "r") as yce:

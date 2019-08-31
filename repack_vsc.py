@@ -2,9 +2,9 @@ import os
 import shutil
 import common
 
-vscin = "extract_NFP/NFP2D.NFP/"
-vscwork = "work_VSC/"
-vscout = "work_NFP/NFP2D.NFP/"
+vscin = "data/extract_NFP/NFP2D.NFP/"
+vscwork = "data/work_VSC/"
+vscout = "data/work_NFP/NFP2D.NFP/"
 
 print("Repacking VSC ...")
 for file in os.listdir(vscin):

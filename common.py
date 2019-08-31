@@ -389,8 +389,8 @@ def detectShiftJIS(f):
 
 
 def loadTable():
-    if os.path.isfile("table.txt"):
-        with codecs.open("table.txt", "r", "utf-8") as ft:
+    if os.path.isfile("data/table.txt"):
+        with codecs.open("data/table.txt", "r", "utf-8") as ft:
             for line in ft:
                 line = line.strip("\r\n")
                 if line.find("=") > 0:

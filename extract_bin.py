@@ -2,8 +2,8 @@ import codecs
 import os
 import common
 
-infile = "extract/arm9.bin"
-outfile = "bin_input.txt"
+infile = "data/extract/arm9.bin"
+outfile = "data/bin_output.txt"
 # Set to False to analyze the whole file
 limit = True
 
