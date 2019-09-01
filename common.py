@@ -11,9 +11,10 @@ warning = True
 
 # File reading
 class Stream(object):
-    def __init__(self, fpath, mode):
+    def __init__(self, fpath, mode, little=True):
         self.f = fpath
         self.mode = mode
+        self.endian = "<" if little else ">"
 
     def __enter__(self):
         self.f = open(self.f, self.mode)
@@ -35,19 +36,22 @@ class Stream(object):
         self.f.write(data)
 
     def readInt(self):
-        return struct.unpack("<i", self.read(4))[0]
+        return struct.unpack(self.endian + "i", self.read(4))[0]
 
     def readUInt(self):
-        return struct.unpack("<I", self.read(4))[0]
+        return struct.unpack(self.endian + "I", self.read(4))[0]
 
     def readShort(self):
-        return struct.unpack("<h", self.read(2))[0]
+        return struct.unpack(self.endian + "h", self.read(2))[0]
 
     def readUShort(self):
-        return struct.unpack("<H", self.read(2))[0]
+        return struct.unpack(self.endian + "H", self.read(2))[0]
 
     def readByte(self):
         return struct.unpack("B", self.read(1))[0]
+
+    def readSByte(self):
+        return struct.unpack("b", self.read(1))[0]
 
     def readBytes(self, n):
         ret = ""
@@ -77,19 +81,22 @@ class Stream(object):
         return str
 
     def writeInt(self, num):
-        self.f.write(struct.pack("<i", num))
+        self.f.write(struct.pack(self.endian + "i", num))
 
     def writeUInt(self, num):
-        self.f.write(struct.pack("<I", num))
+        self.f.write(struct.pack(self.endian + "I", num))
 
     def writeShort(self, num):
-        self.f.write(struct.pack("<h", num))
+        self.f.write(struct.pack(self.endian + "h", num))
 
     def writeUShort(self, num):
-        self.f.write(struct.pack("<H", num))
+        self.f.write(struct.pack(self.endian + "H", num))
 
     def writeByte(self, num):
         self.f.write(struct.pack("B", num))
+
+    def writeSByte(self, num):
+        self.f.write(struct.pack("b", num))
 
     def writeString(self, str):
         self.f.write(str.encode("ascii"))
@@ -100,35 +107,72 @@ class Stream(object):
 
 
 def decompress(f, size):
-    # Code based on https://wiibrew.org/wiki/LZ77
     header = f.readUInt()
     length = header >> 8
     type = (header >> 4) & 0xF
     if debug:
         print("  Header:", toHex(header), "length:", length, "type:", type)
     if type != 1:
-        print("  [ERROR] Unknown compression type", type)
+        print("  [ERROR] Unsupported compression type", type)
         return bytes()
-    dout = bytearray()
-    while len(dout) < length:
-        flags = struct.unpack("<B", f.read(1))[0]
-        for i in range(8):
-            if flags & 0x80:
-                info = struct.unpack(">H", f.read(2))[0]
-                num = 3 + ((info >> 12) & 0xF)
-                # disp = info & 0xFFF
-                ptr = len(dout) - (info & 0xFFF) - 1
-                for i in range(num):
-                    dout.append(dout[ptr])
-                    ptr += 1
-                    if len(dout) >= length:
-                        break
+    return bytes(decompressRawLZSS10(f.read(), length))
+
+
+def decompressBinary(infile, outfile):
+    filelen = os.path.getsize(infile)
+    if infile.endswith("arm9.bin"):
+        filelen -= 0x0C
+    with Stream(infile, "rb") as fin:
+        # Read compression info
+        fin.seek(filelen - 8)
+        header = fin.read(8)
+        enddelta, startdelta = struct.unpack("<LL", header)
+        padding = enddelta >> 0x18
+        enddelta &= 0xFFFFFF
+        decsize = startdelta + enddelta
+        fin.seek(filelen - enddelta)
+        data = bytearray()
+        data.extend(fin.read(enddelta - padding))
+        data.reverse()
+        uncdata = decompressRawLZSS10(data, decsize, True)
+        uncdata.reverse()
+        with Stream(outfile, "wb") as f:
+            fin.seek(0)
+            f.write(fin.read(filelen - enddelta))
+            f.write(uncdata)
+
+
+def decompressRawLZSS10(indata, decompressed_size, binary=False):
+    # From https://github.com/magical/nlzss/blob/master/lzss3.py
+    data = bytearray()
+    it = iter(indata)
+    disp_extra = 3 if binary else 1
+
+    while len(data) < decompressed_size:
+        b = next(it)
+        flags = ((b >> 7) & 1, (b >> 6) & 1, (b >> 5) & 1, (b >> 4) & 1, (b >> 3) & 1, (b >> 2) & 1, (b >> 1) & 1, (b) & 1)
+        for flag in flags:
+            if flag == 0:
+                data.append(next(it))
+            elif flag == 1:
+                sha = next(it)
+                shb = next(it)
+                sh = (sha << 8) | shb
+                count = (sh >> 0xc) + 3
+                disp = (sh & 0xfff) + disp_extra
+
+                for _ in range(count):
+                    data.append(data[-disp])
             else:
-                dout += f.read(1)
-            flags <<= 1
-            if len(dout) >= length:
+                raise ValueError(flag)
+
+            if decompressed_size <= len(data):
                 break
-    return bytes(dout)
+
+    if len(data) != decompressed_size:
+        print("[ERROR] decompressed size does not match the expected size")
+
+    return data
 
 
 def patchBanner(f, title):
@@ -184,7 +228,7 @@ def getSection(f, title, comment="#"):
     try:
         f.seek(0)
         for line in f:
-            line = line.strip("\r\n")
+            line = line.rstrip("\r\n")
             if not found and line.startswith("!FILE:" + title):
                 found = True
             elif found:
@@ -192,7 +236,6 @@ def getSection(f, title, comment="#"):
                     break
                 elif line.find("=") > 0:
                     split = line.split("=", 1)
-                    split[0] = split[0].replace(" ", "　")
                     split[1] = split[1].split(comment)[0]
                     if split[0] not in ret:
                         ret[split[0]] = []
@@ -223,6 +266,13 @@ def copyFile(f1, f2):
     if os.path.isfile(f2):
         os.remove(f2)
     shutil.copyfile(f1, f2)
+
+
+def makeFolders(path):
+    try:
+        os.makedirs(path)
+    except FileExistsError:
+        pass
 
 
 def execute(cmd, show=True):
