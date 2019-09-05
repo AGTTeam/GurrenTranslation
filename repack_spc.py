@@ -6,6 +6,7 @@ import common_game as game
 spcin = "data/extract_NFP/SPC.NFP/"
 spcout = "data/work_NFP/SPC.NFP/"
 spcfile = "data/spc_input.txt"
+tablefile = "data/table.txt"
 if not os.path.isfile(spcfile):
     print("Input file", spcfile, "not found.")
     quit()
@@ -23,7 +24,7 @@ def convertPointer(pointer, pointerdiff):
 
 
 print("Repacking SPC ...")
-game.loadTable()
+common.loadTable(tablefile)
 with codecs.open(spcfile, "r", "utf-8") as spc:
     for file in os.listdir(spcin):
         section = common.getSection(spc, file)

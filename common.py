@@ -1,3 +1,4 @@
+import codecs
 import math
 import os
 import shutil
@@ -7,6 +8,7 @@ import crcmod
 
 debug = False
 warning = True
+table = {}
 
 
 # File reading
@@ -139,6 +141,16 @@ def isAscii(s):
         if ord(s[i]) >= 128:
             return False
     return True
+
+
+def loadTable(tablefile):
+    if os.path.isfile(tablefile):
+        with codecs.open(tablefile, "r", "utf-8") as ft:
+            for line in ft:
+                line = line.strip("\r\n")
+                if line.find("=") > 0:
+                    linesplit = line.split("=", 1)
+                    table[linesplit[0]] = linesplit[1]
 
 
 def checkShiftJIS(first, second):

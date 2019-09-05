@@ -1,5 +1,3 @@
-import codecs
-import os
 import struct
 from PIL import Image, ImageOps
 import common
@@ -15,8 +13,6 @@ spccodes = {
     0x11: 4, 0x29: 4, 0x80: 4, 0x81: 4, 0x3A: 4,
     0x12: 5, 0x21: 5, 0x31: 5, 0x33: 5, 0x37: 5, 0x39: 5
 }
-# Font table
-table = {}
 
 
 # Game-specific strings
@@ -77,43 +73,45 @@ def writeShiftJIS(f, str, writelen=True, maxlen=0):
                     code = str[i+1] + str[i+2]
                     f.write(bytes.fromhex(code))
                     strlen += 1
+                    if maxlen > 0 and strlen >= maxlen:
+                        return -1
                 except ValueError:
                     print("[ERROR] Invalid escape code", str[i+1], str[i+2])
                 i += 4
             # Unknown format UNK(XXXX)
             elif char == "U" and i < len(str) - 4 and str[i:i+4] == "UNK(":
+                if maxlen > 0 and strlen + 2 >= maxlen:
+                    return -1
                 code = str[i+4] + str[i+5]
                 f.write(bytes.fromhex(code))
                 code = str[i+6] + str[i+7]
                 f.write(bytes.fromhex(code))
                 i += 9
                 strlen += 2
-                if maxlen > 0 and strlen >= maxlen:
-                    return -1
             # Custom full-size glyph CUS(XXXX)
             elif char == "C" and i < len(str) - 4 and str[i:i+4] == "CUS(":
-                f.write(bytes.fromhex(table[str[i+4:i+8]]))
+                if maxlen > 0 and strlen + 2 >= maxlen:
+                    return -1
+                f.write(bytes.fromhex(common.table[str[i+4:i+8]]))
                 i += 9
                 strlen += 2
-                if maxlen > 0 and strlen >= maxlen:
-                    return -1
             else:
                 if i + 1 == len(str):
                     bigram = char + " "
                 else:
                     bigram = char + str[i+1]
                 i += 2
-                if bigram not in table:
+                if maxlen > 0 and strlen + 2 >= maxlen:
+                    return -1
+                if bigram not in common.table:
                     if common.warning:
                         try:
                             print(" [WARNING] Bigram not found:", bigram, "in string", str)
                         except UnicodeEncodeError:
                             print(" [WARNING] Bigram not found in string", str)
                     bigram = "  "
-                f.write(bytes.fromhex(table[bigram]))
+                f.write(bytes.fromhex(common.table[bigram]))
                 strlen += 2
-                if maxlen > 0 and strlen >= maxlen:
-                    return -1
     else:
         # SJIS string
         str = str.replace("～", "〜")
@@ -159,16 +157,6 @@ def detectShiftJIS(f):
             ret += "UNK(" + common.toHex(b1) + common.toHex(b2) + ")"
         else:
             return ""
-
-
-def loadTable():
-    if os.path.isfile("data/table.txt"):
-        with codecs.open("data/table.txt", "r", "utf-8") as ft:
-            for line in ft:
-                line = line.strip("\r\n")
-                if line.find("=") > 0:
-                    linesplit = line.split("=", 1)
-                    table[linesplit[0]] = linesplit[1]
 
 
 # Game-specific textures

@@ -7,10 +7,12 @@ import common_game as game
 binin = "data/extract/arm9.bin"
 binout = "data/repack/arm9.bin"
 binfile = "data/bin_input.txt"
+tablefile = "data/table.txt"
 if not os.path.isfile(binfile):
     print("Input file", binfile, "not found.")
     quit()
 common.copyFile(binin, binout)
+common.debug = True
 
 freeranges = [(0xEA810, 0xEEC00)]
 currentrange = 0
@@ -21,7 +23,7 @@ with codecs.open(binfile, "r", "utf-8") as bin:
     section = common.getSection(bin, "")
 
 print("Repacking BIN ...")
-game.loadTable()
+common.loadTable(tablefile)
 insize = os.path.getsize(binin)
 rangepos = freeranges[currentrange][0]
 with common.Stream(binin, "rb") as fi:
@@ -70,4 +72,6 @@ with common.Stream(binin, "rb") as fi:
                                     rangepos = freeranges[currentrange][0]
                     else:
                         fo.writeZero(endpos - fo.tell())
+                if check != "":
+                    pos = fi.tell() - 1
             fi.seek(pos + 1)
