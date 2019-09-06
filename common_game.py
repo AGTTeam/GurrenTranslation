@@ -70,17 +70,17 @@ def writeShiftJIS(f, str, writelen=True, maxlen=0):
             # Code format <XX>
             if char == "<" and i < len(str) - 3 and str[i+3] == ">":
                 try:
+                    if maxlen > 0 and strlen + 1 > maxlen:
+                        return -1
                     code = str[i+1] + str[i+2]
                     f.write(bytes.fromhex(code))
                     strlen += 1
-                    if maxlen > 0 and strlen >= maxlen:
-                        return -1
                 except ValueError:
                     print("[ERROR] Invalid escape code", str[i+1], str[i+2])
                 i += 4
             # Unknown format UNK(XXXX)
             elif char == "U" and i < len(str) - 4 and str[i:i+4] == "UNK(":
-                if maxlen > 0 and strlen + 2 >= maxlen:
+                if maxlen > 0 and strlen + 2 > maxlen:
                     return -1
                 code = str[i+4] + str[i+5]
                 f.write(bytes.fromhex(code))
@@ -90,7 +90,7 @@ def writeShiftJIS(f, str, writelen=True, maxlen=0):
                 strlen += 2
             # Custom full-size glyph CUS(XXXX)
             elif char == "C" and i < len(str) - 4 and str[i:i+4] == "CUS(":
-                if maxlen > 0 and strlen + 2 >= maxlen:
+                if maxlen > 0 and strlen + 2 > maxlen:
                     return -1
                 f.write(bytes.fromhex(common.table[str[i+4:i+8]]))
                 i += 9
@@ -101,7 +101,7 @@ def writeShiftJIS(f, str, writelen=True, maxlen=0):
                 else:
                     bigram = char + str[i+1]
                 i += 2
-                if maxlen > 0 and strlen + 2 >= maxlen:
+                if maxlen > 0 and strlen + 2 > maxlen:
                     return -1
                 if bigram not in common.table:
                     if common.warning:
