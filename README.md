@@ -1,4 +1,4 @@
-# Ookami Translation
+# Gurren Translation
 ## Setup
 Create a "data" folder and copy the rom as "rom.nds" in it.  
 ## Run from binary
