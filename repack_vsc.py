@@ -1,23 +1,23 @@
 import os
-import common
-import common_game as game
+import game
+from hacktools import common
 
-vscin = "data/extract_NFP/NFP2D.NFP/"
-vscwork = "data/work_VSC/"
-vscout = "data/work_NFP/NFP2D.NFP/"
 
-print("Repacking VSC ...")
-for file in os.listdir(vscin):
-    if not file.endswith(".VSC"):
-        continue
-    pngname = file.replace(".VSC", ".png")
-    if not os.path.isfile(vscwork + pngname):
-        common.copyFile(vscin + file, vscout + file)
-    else:
-        if common.debug:
-            print("Processing", file, "...")
-        with common.Stream(vscin + file, "rb") as fin:
-            with common.Stream(vscout + file, "wb") as f:
+def run():
+    infolder = "data/extract_NFP/NFP2D.NFP/"
+    workfolder = "data/work_VSC/"
+    outfolder = "data/work_NFP/NFP2D.NFP/"
+
+    common.logMessage("Repacking VSC from", workfolder, "...")
+    files = common.getFiles(infolder, ".VSC")
+    for file in common.showProgress(files):
+        pngname = file.replace(".VSC", ".png")
+        if not os.path.isfile(workfolder + pngname):
+            common.copyFile(infolder + file, outfolder + file)
+            continue
+        common.logDebug("Processing", file, "...")
+        with common.Stream(infolder + file, "rb") as fin:
+            with common.Stream(outfolder + file, "wb") as f:
                 # Read header
                 fin.seek(16)
                 bpp = 4 if fin.readUInt() == 1 else 8
@@ -28,13 +28,13 @@ for file in os.listdir(vscin):
                 fin.seek(4, 1)
                 tilesize = fin.readUInt()
                 mapdata = fin.read(mapsize)
-                tiledata = fin.read(tilesize)
+                fin.seek(tilesize, 1)
                 fin.seek(24, 1)
                 palnum = fin.readUShort()
                 fin.seek(4, 1)
                 paloffset = fin.tell()
                 paldata = fin.read(palnum * 32)
-                tiles, maps = game.readMappedImage(vscwork + pngname, width, height, paldata)
+                tiles, maps = game.readMappedImage(workfolder + pngname, width, height, paldata)
                 # Copy the header
                 fin.seek(0)
                 f.write(fin.read(44))
@@ -66,3 +66,4 @@ for file in os.listdir(vscin):
                 f.seek(36)
                 f.writeUInt(mapend - mapstart)
                 f.writeUInt(tileend - tilestart)
+    common.logMessage("Done!")

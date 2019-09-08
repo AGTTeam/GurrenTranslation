@@ -1,6 +1,6 @@
 import struct
 from PIL import Image, ImageOps
-import common
+from hacktools import common
 
 # Control codes found in strings
 codes = [0x09, 0x0A, 0x20, 0xA5]
@@ -40,7 +40,7 @@ def readShiftJIS(f):
                 try:
                     sjis += f.read(2).decode("shift-jis").replace("〜", "～")
                 except UnicodeDecodeError:
-                    print("[ERROR] UnicodeDecodeError")
+                    common.logError("UnicodeDecodeError")
                     sjis += "|"
                 i += 2
         return sjis
@@ -76,7 +76,7 @@ def writeShiftJIS(f, str, writelen=True, maxlen=0):
                     f.write(bytes.fromhex(code))
                     strlen += 1
                 except ValueError:
-                    print("[ERROR] Invalid escape code", str[i+1], str[i+2])
+                    common.logwarning("Invalid escape code", str[i+1], str[i+2])
                 i += 4
             # Unknown format UNK(XXXX)
             elif char == "U" and i < len(str) - 4 and str[i:i+4] == "UNK(":
@@ -106,9 +106,9 @@ def writeShiftJIS(f, str, writelen=True, maxlen=0):
                 if bigram not in common.table:
                     if common.warning:
                         try:
-                            print(" [WARNING] Bigram not found:", bigram, "in string", str)
+                            common.logWarning("Bigram not found:", bigram, "in string", str)
                         except UnicodeEncodeError:
-                            print(" [WARNING] Bigram not found in string", str)
+                            common.logWarning("Bigram not found in string", str)
                     bigram = "  "
                 f.write(bytes.fromhex(common.table[bigram]))
                 strlen += 2
@@ -188,8 +188,7 @@ def readPaletteData(paldata):
             p = struct.unpack("<H", paldata[j * 32 + i:j * 32 + i + 2])[0]
             palette.append(common.readPalette(p))
         palettes.append(palette)
-    if common.debug:
-        print(" Loaded", len(palettes), "palettes")
+    common.logDebug("Loaded", len(palettes), "palettes")
     return palettes
 
 
@@ -243,8 +242,7 @@ def drawMappedImage(width, height, mapdata, tiledata, paldata, tilesize=8, bpp=4
         yflip = (map >> 11) & 1
         tile = map & 0x3FF
         maps.append((pal, xflip, yflip, tile))
-    if common.debug:
-        print(" Loaded", len(maps), "maps")
+    common.logDebug("Loaded", len(maps), "maps")
     # Tiles
     tiles = []
     for i in range(len(tiledata) // (32 if bpp == 4 else 64)):
@@ -257,8 +255,7 @@ def drawMappedImage(width, height, mapdata, tiledata, paldata, tilesize=8, bpp=4
                 index = tiledata[x]
             singletile.append(index)
         tiles.append(singletile)
-    if common.debug:
-        print(" Loaded", len(tiles), "tiles")
+    common.logDebug("Loaded", len(tiles), "tiles")
     # Palette
     palettes = readPaletteData(paldata)
     pals = []
@@ -284,7 +281,7 @@ def drawMappedImage(width, height, mapdata, tiledata, paldata, tilesize=8, bpp=4
                     sub = ImageOps.mirror(sub)
                 img.paste(sub, box=(j, i))
         except (KeyError, IndexError):
-            print("  [ERROR] Tile", map[3], "not found")
+            common.logWarning("Tile or palette", str(map), "not found")
         j += tilesize
         if j >= width:
             j = 0
