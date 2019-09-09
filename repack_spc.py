@@ -21,7 +21,7 @@ def run():
     with codecs.open(infile, "r", "utf-8") as spc:
         files = common.getFiles(infolder, [".SPC", ".SET"])
         for file in common.showProgress(files):
-            section = common.getSection(spc, file)
+            section = common.getSection(spc, file, "#", game.fixchars)
             if len(section) == 0:
                 common.copyFile(infolder + file, outfolder + file)
                 continue

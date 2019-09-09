@@ -1,6 +1,7 @@
 import codecs
 import os
 from PIL import Image
+import game
 from hacktools import common
 
 
@@ -97,9 +98,9 @@ def run():
         items.append(custom)
     # And a complete one from all the bigrams
     with codecs.open(spcin, "r", "utf-8") as spc:
-        inputs = common.getSection(spc, "")
+        inputs = common.getSection(spc, "", "#", game.fixchars)
     with codecs.open(binin, "r", "utf-8") as bin:
-        inputs.update(common.getSection(bin, ""))
+        inputs.update(common.getSection(bin, "", "#", game.fixchars))
     for k, input in inputs.items():
         for str in input:
             str = "<0A>".join(str.replace("|", "<0A>").split(">>"))

@@ -21,7 +21,7 @@ def run():
 
     section = {}
     with codecs.open(binfile, "r", "utf-8") as bin:
-        section = common.getSection(bin, "")
+        section = common.getSection(bin, "", "#", game.fixchars)
         chartot, transtot = common.getSectionPercentage(section)
 
     common.logMessage("Repacking BIN from", binfile, "...")

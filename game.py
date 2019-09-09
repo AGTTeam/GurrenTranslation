@@ -13,6 +13,8 @@ spccodes = {
     0x11: 4, 0x29: 4, 0x80: 4, 0x81: 4, 0x3A: 4,
     0x12: 5, 0x21: 5, 0x31: 5, 0x33: 5, 0x37: 5, 0x39: 5
 }
+# Characters to replace in sections
+fixchars = [("’", "'"), ("‘", "'"), ("…", "..."), ("—", "-"), ("～", "~"), ("	", " ")]
 
 
 # Game-specific strings
