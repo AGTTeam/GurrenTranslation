@@ -106,11 +106,10 @@ def writeShiftJIS(f, str, writelen=True, maxlen=0):
                 if maxlen > 0 and strlen + 2 > maxlen:
                     return -1
                 if bigram not in common.table:
-                    if common.warning:
-                        try:
-                            common.logWarning("Bigram not found:", bigram, "in string", str)
-                        except UnicodeEncodeError:
-                            common.logWarning("Bigram not found in string", str)
+                    try:
+                        common.logWarning("Bigram not found:", bigram, "in string", str)
+                    except UnicodeEncodeError:
+                        common.logWarning("Bigram not found in string", str)
                     bigram = "  "
                 f.write(bytes.fromhex(common.table[bigram]))
                 strlen += 2
