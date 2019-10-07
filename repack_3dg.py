@@ -14,10 +14,11 @@ def run():
         common.logDebug("Processing", file, "...")
         common.copyFile(infolder + file, outfolder + file)
         nsbmd = nitro.readNSBMD(infolder + file)
+        fixtrasp = file.startswith("MSW_")
         if nsbmd is not None and len(nsbmd.textures) > 0:
             for texi in range(len(nsbmd.textures)):
                 pngname = file.replace(".3DG", "") + "_" + nsbmd.textures[texi].name + ".png"
                 if os.path.isfile(workfolder + pngname):
                     common.logDebug(" Repacking", pngname, "...")
-                    nitro.writeNSBMD(outfolder + file, nsbmd, texi, workfolder + pngname)
+                    nitro.writeNSBMD(outfolder + file, nsbmd, texi, workfolder + pngname, fixtrasp)
     common.logMessage("Done!")
