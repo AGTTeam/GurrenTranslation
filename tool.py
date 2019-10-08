@@ -2,7 +2,7 @@ import os
 import click
 from hacktools import common, nds
 
-version = "1.0.1"
+version = "1.0.2"
 romfile = "data/rom.nds"
 rompatch = "data/rom_patched.nds"
 bannerfile = "data/repack/banner.bin"
