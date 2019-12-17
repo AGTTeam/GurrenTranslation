@@ -144,11 +144,11 @@ def run():
                                     f.writeString("AWAY")
                                     f.writeByte(0x00)
                                     pointerdiff[strpos - 16] = 4
-                                elif file == "APP_DAYA.SPC" and pos - 16 == 439:
-                                    fin.seek(strpos + oldlen + 2)
-                                    f.writeUShort(0x07)
-                                    f.writeString("sys_04")
-                                    f.writeByte(0x00)
+                                #elif file == "APP_DAYA.SPC" and pos - 16 == 439:
+                                #    fin.seek(strpos + oldlen + 2)
+                                #    f.writeUShort(0x07)
+                                #    f.writeString("sys_04")
+                                #    f.writeByte(0x00)
                                 else:
                                     fin.seek(strpos)
                                     f.write(fin.read(oldlen + 2))
