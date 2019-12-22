@@ -125,30 +125,26 @@ def run():
                                 fin.seek(1, 1)
                             else:
                                 common.logDebug("Found ASCII or unaltered string at", strpos + 16)
+                                fixPos = pos - 16
                                 # Patch RITT_02 to add Dayakka's missing text
-                                if file == "RITT_02.SPC" and pos - 16 == 1775:
+                                if file == "RITT_02.SPC" and fixPos == 1775:
                                     fin.seek(strpos + oldlen + 2)
                                     f.writeUShort(0x09)
                                     f.writeString("APP_DAYA")
                                     f.writeByte(0x00)
                                     pointerdiff[strpos - 16] = 8
-                                elif file == "RITT_02.SPC" and pos - 16 == 1810:
+                                elif file == "RITT_02.SPC" and fixPos == 1810:
                                     fin.seek(strpos + oldlen + 2)
                                     f.writeUShort(0x09)
                                     f.writeString("DAYA_004")
                                     f.writeByte(0x00)
                                     pointerdiff[strpos - 16] = 8
-                                elif file == "RITT_02.SPC" and pos - 16 == 1845:
+                                elif file == "RITT_02.SPC" and fixPos == 1845:
                                     fin.seek(strpos + oldlen + 2)
                                     f.writeUShort(0x05)
                                     f.writeString("AWAY")
                                     f.writeByte(0x00)
                                     pointerdiff[strpos - 16] = 4
-                                #elif file == "APP_DAYA.SPC" and pos - 16 == 439:
-                                #    fin.seek(strpos + oldlen + 2)
-                                #    f.writeUShort(0x07)
-                                #    f.writeString("sys_04")
-                                #    f.writeByte(0x00)
                                 else:
                                     fin.seek(strpos)
                                     f.write(fin.read(oldlen + 2))
@@ -225,7 +221,13 @@ def run():
                             elif byte == 0x29:
                                 last29.append(fin.readUInt())
                                 fin.seek(-4, 1)
-                            f.write(fin.read(game.spccodes[byte]))
+                            # Patch SYS_046 and fix the disappearing cut-in sprites
+                            fixPos = pos - 16
+                            if file == "SYS_046.SPC" and byte == 0x29 and fixPos in [9660, 11356, 11915, 13108, 13646]:
+                                f.writeUInt(0x0A)
+                                fin.seek(4, 1)
+                            else:
+                                f.write(fin.read(game.spccodes[byte]))
                         common.logDebug("Unknown byte", common.toHex(byte), "at", pos)
                     f.writeByte(0x8F)
                     f.writeByte(0x00)
