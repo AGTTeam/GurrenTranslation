@@ -221,9 +221,9 @@ def run():
                             elif byte == 0x29:
                                 last29.append(fin.readUInt())
                                 fin.seek(-4, 1)
-                            # Patch SYS_046 and fix the disappearing cut-in sprites
+                            # Patch SYS_046/7 and fix the disappearing cut-in sprites
                             fixPos = pos - 16
-                            if file == "SYS_046.SPC" and byte == 0x29 and fixPos in [9660, 11356, 11915, 13108, 13646]:
+                            if (file == "SYS_046.SPC" and byte == 0x29 and fixPos in [9660, 11356, 11915, 13108, 13646]) or (file == "SYS_047.SPC" and byte == 0x29 and fixPos == 1607):
                                 f.writeUInt(0x0A)
                                 fin.seek(4, 1)
                             else:
