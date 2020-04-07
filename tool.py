@@ -2,7 +2,7 @@ import os
 import click
 from hacktools import common, nds
 
-version = "1.0.7"
+version = "1.0.8"
 romfile = "data/rom.nds"
 rompatch = "data/rom_patched.nds"
 bannerfile = "data/repack/banner.bin"
@@ -130,7 +130,7 @@ def repack(no_rom, bin, tdg, kpc, spc, vsc, yce, deb, force, analyze):
         else:
             common.copyFile(debfolder + "SPC.NFP/S_MAIN.SPC", nfpwork + "SPC.NFP/S_MAIN.SPC")
         if force != "":
-            common.copyFile(debfolder + "SPC.NFP/" + force + ".SPC", nfpwork + "SPC.NFP/SYS_000.SPC")
+            common.copyFile(nfpwork + "SPC.NFP/" + force + ".SPC", nfpwork + "SPC.NFP/SYS_000.SPC")
         # Repack NFP archives
         common.logMessage("Repacking NFP ...")
         files = common.getFiles(nfpin, ".NFP")
