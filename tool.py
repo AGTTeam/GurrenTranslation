@@ -2,7 +2,7 @@ import os
 import click
 from hacktools import common, nds
 
-version = "1.0.5"
+version = "1.0.6"
 romfile = "data/rom.nds"
 rompatch = "data/rom_patched.nds"
 bannerfile = "data/repack/banner.bin"
@@ -93,8 +93,9 @@ def analyze(file, p):
 @click.option("--vsc", is_flag=True, default=False)
 @click.option("--yce", is_flag=True, default=False)
 @click.option("--deb", is_flag=True, default=False)
+@click.option("--force", default="")
 @click.option("--analyze", default="")
-def repack(no_rom, bin, tdg, kpc, spc, vsc, yce, deb, analyze):
+def repack(no_rom, bin, tdg, kpc, spc, vsc, yce, deb, force, analyze):
     all = not bin and not tdg and not kpc and not spc and not vsc and not yce
     if all or bin or spc:
         import repack_font
@@ -128,6 +129,8 @@ def repack(no_rom, bin, tdg, kpc, spc, vsc, yce, deb, analyze):
             common.copyFile(debfolder + "SPC.NFP/S_DEBUG.SPC", nfpwork + "SPC.NFP/S_MAIN.SPC")
         else:
             common.copyFile(debfolder + "SPC.NFP/S_MAIN.SPC", nfpwork + "SPC.NFP/S_MAIN.SPC")
+        if force != "":
+            common.copyFile(debfolder + "SPC.NFP/" + force + ".SPC", nfpwork + "SPC.NFP/SYS_000.SPC")
         # Repack NFP archives
         common.logMessage("Repacking NFP ...")
         files = common.getFiles(nfpin, ".NFP")
