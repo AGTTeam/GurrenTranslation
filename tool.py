@@ -2,7 +2,7 @@ import os
 import click
 from hacktools import common, nds
 
-version = "1.0.9"
+version = "1.0.10"
 romfile = "data/gurren.nds"
 rompatch = "data/gurren_patched.nds"
 bannerfile = "data/repack/banner.bin"
