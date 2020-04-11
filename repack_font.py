@@ -19,7 +19,7 @@ def run():
     table = "data/table.txt"
 
     common.logMessage("Repacking font ...")
-    fontexe = common.bundledExecutable("NerdFontTerminatoR.exe")
+    fontexe = common.bundledFile("NerdFontTerminatoR.exe")
     if not os.path.isfile(fontexe):
         common.logError("NerdFontTerminatoR not found")
         return
