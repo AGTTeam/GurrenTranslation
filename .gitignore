@@ -1,8 +1,8 @@
 __pycache__
 
-venv
 build
 data*
 *.log
 *.exe
 *.zip
+notes.md
