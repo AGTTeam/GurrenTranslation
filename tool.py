@@ -3,7 +3,7 @@ import click
 import game
 from hacktools import common, nds, nitro
 
-version = "1.0.10"
+version = "1.1.0"
 romfile = "data/gurren.nds"
 rompatch = "data/gurren_patched.nds"
 bannerfile = "data/repack/banner.bin"
