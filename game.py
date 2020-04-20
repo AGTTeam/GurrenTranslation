@@ -292,3 +292,8 @@ def drawMappedImage(width, height, mapdata, tiledata, paldata, tilesize=8, bpp=4
         for i in range(len(palettes)):
             pixels = common.drawPalette(pixels, palettes[i], width, i * 10)
     return img
+
+
+def write3DG(file, nsbmd):
+    fixtrasp = file.startswith("MSW_")
+    return fixtrasp

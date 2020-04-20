@@ -1,6 +1,7 @@
 import os
 import click
-from hacktools import common, nds
+import game
+from hacktools import common, nds, nitro
 
 version = "1.0.10"
 romfile = "data/gurren.nds"
@@ -60,8 +61,7 @@ def extract(rom, bin, tdg, kpc, spc, vsc, yce):
         import extract_bin
         extract_bin.run()
     if all or tdg:
-        import extract_3dg
-        extract_3dg.run()
+        nitro.extractNSBMD("data/extract_NFP/NFP3D.NFP/", "data/out_3DG/", ".3DG")
     if all or kpc:
         import extract_kpc
         extract_kpc.run()
@@ -104,8 +104,7 @@ def repack(no_rom, bin, tdg, kpc, spc, vsc, yce, deb, force, analyze):
         import repack_bin
         repack_bin.run()
     if all or tdg:
-        import repack_3dg
-        repack_3dg.run()
+        nitro.repackNSBMD("data/work_3DG/", "data/extract_NFP/NFP3D.NFP/", "data/work_NFP/NFP3D.NFP/", ".3DG", game.write3DG)
     if all or kpc:
         import repack_kpc
         repack_kpc.run()
