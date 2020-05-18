@@ -193,7 +193,7 @@ def readPaletteData(paldata):
     return palettes
 
 
-def readMappedImage(imgfile, width, height, paldata, fixtrasp=False, tilesize=8):
+def readMappedImage(imgfile, width, height, paldata, fixtransp=False, tilesize=8):
     palettes = readPaletteData(paldata)
     # Read the image
     img = Image.open(imgfile)
@@ -211,7 +211,7 @@ def readMappedImage(imgfile, width, height, paldata, fixtrasp=False, tilesize=8)
         pal = common.findBestPalette(palettes, tilecolors)
         tile = []
         for tilecolor in tilecolors:
-            tile.append(common.getPaletteIndex(palettes[pal], tilecolor, fixtrasp))
+            tile.append(common.getPaletteIndex(palettes[pal], tilecolor, fixtransp))
         # Search for a repeated tile
         found = -1
         for ti in range(len(tiles)):
@@ -295,5 +295,5 @@ def drawMappedImage(width, height, mapdata, tiledata, paldata, tilesize=8, bpp=4
 
 
 def write3DG(file, nsbmd):
-    fixtrasp = file.startswith("MSW_")
-    return fixtrasp
+    fixtransp = file.startswith("MSW_")
+    return fixtransp
