@@ -9,6 +9,7 @@ rompatch = "data/gurren_patched.nds"
 bannerfile = "data/repack/banner.bin"
 patchfile = "data/patch.xdelta"
 infolder = "data/extract/"
+replacefolder = "data/replace/"
 outfolder = "data/repack/"
 
 
@@ -131,6 +132,8 @@ def repack(no_rom, bin, tdg, kpc, spc, vsc, yce, deb, force, analyze):
         if force != "":
             common.copyFile(nfpwork + "SPC.NFP/" + force + ".SPC", nfpwork + "SPC.NFP/SYS_000.SPC")
         # Repack NFP archives
+        if os.path.isdir(replacefolder):
+            common.mergeFolder(replacefolder, nfpwork)
         common.logMessage("Repacking NFP ...")
         files = common.getFiles(nfpin, ".NFP")
         for file in common.showProgress(files):
