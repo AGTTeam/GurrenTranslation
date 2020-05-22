@@ -3,7 +3,7 @@ import click
 import game
 from hacktools import common, nds, nitro
 
-version = "1.1.1"
+version = "1.2.0"
 romfile = "data/gurren.nds"
 rompatch = "data/gurren_patched.nds"
 bannerfile = "data/repack/banner.bin"
@@ -106,6 +106,8 @@ def repack(no_rom, bin, tdg, kpc, spc, vsc, yce, deb, force, analyze):
         repack_bin.run()
     if all or tdg:
         nitro.repackNSBMD("data/work_3DG/", "data/extract_NFP/NFP3D.NFP/", "data/work_NFP/NFP3D.NFP/", ".3DG", game.write3DG)
+        import patch_jnt
+        patch_jnt.run()
     if all or kpc:
         import repack_kpc
         repack_kpc.run()
