@@ -152,6 +152,11 @@ def run():
                                     f.writeString("AWAY")
                                     f.writeByte(0x00)
                                     pointerdiff[strpos - 16] = 4
+                                elif file == "SYS_054.SPC" and fixPos == 4233:
+                                    fin.seek(strpos + oldlen + 2)
+                                    f.writeUShort(0x09)
+                                    f.writeString("MSW_C083")
+                                    f.writeByte(0x00)
                                 else:
                                     fin.seek(strpos)
                                     f.write(fin.read(oldlen + 2))
