@@ -3,7 +3,8 @@ from hacktools import common
 animfiles = {
     2: "data/extract_NFP/NFP2D.NFP/AV03_01.YCE",
     5: "data/extract_NFP/NFP2D.NFP/AV09_01.YCE",
-    6: "data/extract_NFP/NFP2D.NFP/AV02_05.YCE",
+    6: "data/extract_NFP/NFP2D.NFP/AV08_01.YCE",
+    7: "data/extract_NFP/NFP2D.NFP/AV01_04.YCE",
     8: "data/extract_NFP/NFP2D.NFP/AV05_02.YCE"
 }
 
