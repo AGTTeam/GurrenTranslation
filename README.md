@@ -26,6 +26,11 @@ Comments can be added at the end of lines by using #
 Rename the out\_\* folders to work\_\* (out_KPC to work_KPC, etc).  
 Edit the images in the work folder(s). The palette on the right should be followed but the repacker will try to approximate other colors to the closest one.  
 If an image doesn't require repacking, it should be deleted from the work folder.  
+## Animation Editing
+To add `x` frames to an animation, use the following command:
+`tool expand --n x FILENAME.YCE`  
+This will copy the YCE file to the work_YCE folder after adding x frames of animation (the last frame will be copied).  
+After this, you can extract YCE again and this will update the data for the next repacks.  
 ## Scripts Testing
 The `--deb` can be used while repacking to send the player to the Debug Map when starting a new game.  
 The `--force <script>` can be used while repacking to run particular script when starting a new game.  

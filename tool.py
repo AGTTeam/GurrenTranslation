@@ -3,7 +3,7 @@ import click
 import game
 from hacktools import common, nds, nitro
 
-version = "1.2.2"
+version = "1.3.0"
 romfile = "data/gurren.nds"
 rompatch = "data/gurren_patched.nds"
 bannerfile = "data/repack/banner.bin"
@@ -83,6 +83,14 @@ def extract(rom, bin, tdg, kpc, spc, vsc, yce):
 def analyze(file, p):
     import analyze_spc
     analyze_spc.run(file, p)
+
+
+@common.cli.command()
+@click.argument("file")
+@click.option("--n", default=0)
+def expand(file, n):
+    import expand_yce
+    expand_yce.run(file, n)
 
 
 @common.cli.command()

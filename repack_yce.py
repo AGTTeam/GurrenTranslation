@@ -22,7 +22,10 @@ def run():
     common.logMessage("Repacking YCE from", workfolder, "...")
     files = common.getFiles(infolder, ".YCE")
     for file in common.showProgress(files):
-        common.copyFile(infolder + file, outfolder + file)
+        filepath = infolder + file
+        if os.path.isfile(workfolder + file):
+            filepath = workfolder + file
+        common.copyFile(filepath, outfolder + file)
         if file not in sections:
             continue
         pngname = file.replace(".YCE", ".png")

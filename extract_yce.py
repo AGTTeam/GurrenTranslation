@@ -1,4 +1,5 @@
 import base64
+import os
 import pickle
 import struct
 from PIL import Image
@@ -8,6 +9,7 @@ from hacktools import common
 
 def run():
     infolder = "data/extract_NFP/NFP2D.NFP/"
+    altinfolder = "data/work_YCE/"
     outfolder = "data/out_YCE/"
     outfile = "data/yce_data.txt"
     common.makeFolder(outfolder)
@@ -17,7 +19,10 @@ def run():
         files = common.getFiles(infolder, ".YCE")
         for file in common.showProgress(files):
             common.logDebug("Processing", file, "...")
-            with common.Stream(infolder + file, "rb") as f:
+            filepath = infolder + file
+            if os.path.isfile(altinfolder + file):
+                filepath = altinfolder + file
+            with common.Stream(filepath, "rb") as f:
                 # Read header
                 f.seek(8)
                 size = f.readUInt()  # size - header (7)
