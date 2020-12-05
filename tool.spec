@@ -5,8 +5,8 @@ block_cipher = None
 
 a = Analysis(['tool.py'],
              pathex=['D:\\roms\\gurren'],
-             binaries=[('ndstool.exe', '.'), ('xdelta.exe', '.'), ('NerdFontTerminatoR.exe', '.')],
-             datas=[],
+             binaries=[('ndstool.exe', '.'), ('armips.exe', '.'), ('xdelta.exe', '.'), ('NerdFontTerminatoR.exe', '.')],
+             datas=[('bin_patch.asm', '.')],
              hiddenimports=['pkg_resources.py2_warn'],
              hookspath=[],
              runtime_hooks=[],
