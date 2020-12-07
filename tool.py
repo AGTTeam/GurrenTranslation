@@ -3,7 +3,7 @@ import click
 import game
 from hacktools import common, nds, nitro
 
-version = "1.3.2"
+version = "1.4.0"
 romfile = "data/gurren.nds"
 rompatch = "data/gurren_patched.nds"
 bannerfile = "data/repack/banner.bin"
@@ -73,6 +73,8 @@ def extract(rom, bin, tdg, kpc, spc, vsc, yce):
         import extract_vsc
         extract_vsc.run()
     if all or yce:
+        for i in range(1, 8):
+            common.copyFile("data/extract_NFP/NFP2D.NFP/AV01_0" + str(i) + ".YCE", "data/extract_NFP/NFP2D.NFP/AV00_0" + str(i) + ".YCE")
         import extract_yce
         extract_yce.run()
 

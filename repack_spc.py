@@ -8,6 +8,7 @@ def run():
     infolder = "data/extract_NFP/SPC.NFP/"
     outfolder = "data/work_NFP/SPC.NFP/"
     infile = "data/spc_input.txt"
+    infixfile = "data/sprite_fix.txt"
     tablefile = "data/table.txt"
     chartot = transtot = 0
 
@@ -18,11 +19,13 @@ def run():
 
     common.logMessage("Repacking SPC from", infile, "...")
     common.loadTable(tablefile)
+    spritefixf = codecs.open(infixfile, "r", "utf-8")
     with codecs.open(infile, "r", "utf-8") as spc:
         files = common.getFiles(infolder, [".SPC", ".SET"])
         for file in common.showProgress(files):
             section = common.getSection(spc, file, "#", game.fixchars)
-            if len(section) == 0:
+            spritefix = common.getSection(spritefixf, file, "#")
+            if len(section) == 0 and len(spritefix) == 0:
                 common.copyFile(infolder + file, outfolder + file)
                 continue
             chartot, transtot = common.getSectionPercentage(section, chartot, transtot)
@@ -158,8 +161,16 @@ def run():
                                     f.writeString("MSW_C083")
                                     f.writeByte(0x00)
                                 else:
-                                    fin.seek(strpos)
-                                    f.write(fin.read(oldlen + 2))
+                                    fin.seek(strpos + 2)
+                                    asciistr = fin.readNullString()
+                                    if asciistr in spritefix:
+                                        fin.seek(strpos + oldlen + 2)
+                                        f.writeUShort(0x08)
+                                        f.writeString(spritefix[asciistr][0])
+                                        f.writeByte(0x00)
+                                    else:
+                                        fin.seek(strpos)
+                                        f.write(fin.read(oldlen + 2))
                             f.write(fin.read(2))
                             pointer = fin.readUInt()
                             f.writeUInt(common.shiftPointer(pointer, pointerdiff))
