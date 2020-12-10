@@ -88,12 +88,13 @@ def run():
                                     newsjis = newsjis[2:]
                                     pad = " " * ((20 - len(newsjis)) // 2)
                                     newsjis = pad + newsjis + pad
-                                # If the string starts with "[]", add mouth flapping
-                                if newsjis.startswith("[]"):
-                                    newsjis = newsjis[2:]
+                                # If the string starts with "[xx]", add mouth flapping
+                                if newsjis.startswith("[") and newsjis[3] == "]":
+                                    flapbyte = newsjis[1:3]
+                                    newsjis = newsjis[4:]
                                     flappos = f.tell()
                                     f.seek(strposf - 5)
-                                    f.writeByte(0x03)
+                                    f.writeByte(int(flapbyte, 16))
                                     f.seek(flappos)
                                 # If the string contains a >>, split it and save it for later
                                 if newsjis.find(">>") > 0:

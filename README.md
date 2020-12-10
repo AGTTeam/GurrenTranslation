@@ -22,7 +22,7 @@ New textboxes can be added by appending `>>` followed by the new text.
 Control codes are specified as `<XX>` or `UNK(XXXX)`, they should usually be kept. Line breaks are specified as `|` or `<0A>` depending on the file.  
 To blank out a line, use a single `!`. If just left empty, the line will be left untranslated.  
 Comments can be added at the end of lines by using `#`.  
-If a line is missing mouth flaps on the sprite, it can be fixed b y adding `[]` at the beginning of the line.  
+If a line is missing mouth flaps on the sprite, it can be fixed by adding `[XX]` at the beginning of the line. The code needed is different for every character and can be found by analyzing a script file (`tool analyze SCRIPT_NAME.SPC`) with proper mouth flaps for the same bust sprite, 5 bytes before the speech line.  
 ## Image Editing
 Rename the out\_\* folders to work\_\* (out_KPC to work_KPC, etc).  
 Edit the images in the work folder(s). The palette on the right should be followed but the repacker will try to approximate other colors to the closest one.  

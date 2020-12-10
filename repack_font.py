@@ -108,8 +108,8 @@ def run():
                 str = str[2:]
                 pad = " " * ((20 - len(str)) // 2)
                 str = pad + str + pad
-            if str.startswith("[]"):
-                str = str[2:]
+            if str.startswith("[") and str[3] == "]":
+                str = str[4:]
             i = 0
             while i < len(str):
                 if i < len(str) - 1 and str[i+1] == "<":
