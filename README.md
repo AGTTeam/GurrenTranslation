@@ -1,4 +1,5 @@
 # Gurren Translation
+This repository is for the tool used to translate the game. If you're looking for the English patch, click [here](http://www.romhacking.net/translations/5846/).
 ## Setup
 Create a "data" folder and copy the rom as "gurren.nds" in it.  
 ## Run from binary
@@ -8,6 +9,7 @@ Run `tool extract --help` or `tool repack --help` for more info.
 ## Run from source
 Install [Python 3.8](https://www.python.org/downloads/) and pipenv.  
 Download [ndstool.exe](https://www.darkfader.net/ds/files/ndstool.exe).  
+Download [armips.exe](https://github.com/Kingcom/armips/releases).  
 Download [NerdFontTerminatoR.exe](https://github.com/pleonex/NerdFontTerminatoR/releases).  
 Download xdelta.exe.  
 Run `pipenv install`.  
@@ -33,5 +35,5 @@ To add `x` frames to an animation, use the following command:
 This will copy the YCE file to the work_YCE folder after adding x frames of animation (the last frame will be copied).  
 After this, you can extract YCE again and this will update the data for the next repacks.  
 ## Scripts Testing
-The `--deb` can be used while repacking to send the player to the Debug Map when starting a new game.  
-The `--force <script>` can be used while repacking to run particular script when starting a new game.  
+The `--deb` parameter can be used while repacking to send the player to the Debug Map when starting a new game.  
+The `--force <script>` parameter can be used while repacking to run a particular script when starting a new game.  
