@@ -1,6 +1,7 @@
+import os
 import struct
 from PIL import Image, ImageOps
-from hacktools import common
+from hacktools import common, nitro
 
 # Control codes found in strings
 codes = [0x09, 0x0A, 0x20, 0xA5]
@@ -35,7 +36,7 @@ def readShiftJIS(f):
         while i < len - 1:
             byte = f.readByte()
             if byte in codes:
-                sjis += "<" + common.toHex(byte) + ">"
+                sjis += "<" + common.toHex(byte, True) + ">"
                 i += 1
             else:
                 f.seek(-1, 1)
@@ -143,7 +144,7 @@ def detectShiftJIS(f):
         if ret != "" and b1 == 0:
             return ret
         if ret != "" and b1 in bincodes:
-            ret += "<" + common.toHex(b1) + ">"
+            ret += "<" + common.toHex(b1, True) + ">"
             continue
         b2 = f.readByte()
         if common.checkShiftJIS(b1, b2):
@@ -153,9 +154,9 @@ def detectShiftJIS(f):
             except UnicodeDecodeError:
                 if ret.count("UNK(") >= 5:
                     return ""
-                ret += "UNK(" + common.toHex(b1) + common.toHex(b2) + ")"
+                ret += "UNK(" + common.toHex(b1, True) + common.toHex(b2, True) + ")"
         elif len(ret) > 0 and ret.count("UNK(") < 5:
-            ret += "UNK(" + common.toHex(b1) + common.toHex(b2) + ")"
+            ret += "UNK(" + common.toHex(b1, True) + common.toHex(b2, True) + ")"
         else:
             return ""
 
@@ -211,7 +212,7 @@ def readMappedImage(imgfile, width, height, paldata, fixtransp=False, tilesize=8
         pal = common.findBestPalette(palettes, tilecolors)
         tile = []
         for tilecolor in tilecolors:
-            tile.append(common.getPaletteIndex(palettes[pal], tilecolor, fixtransp))
+            tile.append(getPaletteIndex(palettes[pal], tilecolor, fixtransp))
         # Search for a repeated tile
         found = -1
         for ti in range(len(tiles)):
@@ -294,6 +295,105 @@ def drawMappedImage(width, height, mapdata, tiledata, paldata, tilesize=8, bpp=4
     return img
 
 
+# This is a copy of common.getPaletteIndex to get the old behavior
+def getPaletteIndex(palette, color, fixtransp=False, starti=0, palsize=-1, checkalpha=False, zerotransp=True):
+    if color[3] == 0 and zerotransp:
+        return 0
+    if palsize == -1:
+        palsize = len(palette)
+    zeroalpha = -1
+    for i in range(starti, starti + palsize):
+        if fixtransp and i == starti:
+            continue
+        if palette[i][0] == color[0] and palette[i][1] == color[1] and palette[i][2] == color[2] and (not checkalpha or palette[i][3] == color[3]):
+            return i - starti
+        if palette[i][3] == 0:
+            zeroalpha = i - starti
+    if palette[starti][0] == color[0] and palette[starti][1] == color[1] and palette[starti][2] == color[2] and (not checkalpha or palette[starti][3] == color[3]):
+        return 0
+    if checkalpha and color[3] == 0 and zeroalpha != -1:
+        return zeroalpha
+    mindist = 0xFFFFFFFF
+    disti = 0
+    for i in range(starti + 1, starti + palsize):
+        distance = common.getColorDistance(color, palette[i], checkalpha)
+        if distance < mindist:
+            mindist = distance
+            disti = i - starti
+    common.logDebug("Color", color, "not found, closest color:", palette[disti])
+    return disti
+
+
+# Same as above
+def repackNSBMD(workfolder, infolder, outfolder, extension=".nsbmd", writefunc=None):
+    common.logMessage("Repacking NSBMD from", workfolder, "...")
+    files = common.getFiles(infolder, extension)
+    for file in common.showProgress(files):
+        common.logDebug("Processing", file, "...")
+        common.copyFile(infolder + file, outfolder + file)
+        nsbmd = nitro.readNSBMD(infolder + file)
+        if nsbmd is not None and len(nsbmd.textures) > 0:
+            fixtransp = False
+            if writefunc is not None:
+                fixtransp = writefunc(file, nsbmd)
+            for texi in range(len(nsbmd.textures)):
+                pngname = file.replace(extension, "") + "_" + nsbmd.textures[texi].name + ".png"
+                if os.path.isfile(workfolder + pngname):
+                    common.logDebug(" Repacking", pngname, "...")
+                    writeNSBMD(outfolder + file, nsbmd, texi, workfolder + pngname, fixtransp)
+    common.logMessage("Done!")
+
+
+def writeNSBMD(file, nsbmd, texi, infile, fixtransp=False):
+    img = Image.open(infile)
+    img = img.convert("RGBA")
+    pixels = img.load()
+    tex = nsbmd.textures[texi]
+    with common.Stream(file, "r+b") as f:
+        # Read palette
+        if tex.format != 7:
+            palette = nsbmd.palettes[texi]
+            paldata = palette.data
+        # Write new texture data
+        f.seek(tex.offset)
+        # A3I5 Translucent Texture (3bit Alpha, 5bit Color Index)
+        if tex.format == 1:
+            for i in range(tex.height):
+                for j in range(tex.width):
+                    index = common.getPaletteIndex(paldata, pixels[j, i], fixtransp)
+                    alpha = (pixels[j, i][3] * 8) // 256
+                    f.writeByte(index | (alpha << 5))
+        # 4-color Palette
+        elif tex.format == 2:
+            for i in range(tex.height):
+                for j in range(0, tex.width, 4):
+                    index1 = common.getPaletteIndex(paldata, pixels[j, i], fixtransp)
+                    index2 = common.getPaletteIndex(paldata, pixels[j + 1, i], fixtransp)
+                    index3 = common.getPaletteIndex(paldata, pixels[j + 2, i], fixtransp)
+                    index4 = common.getPaletteIndex(paldata, pixels[j + 3, i], fixtransp)
+                    f.writeByte((index4 << 6) | (index3 << 4) | (index2 << 2) | index1)
+        # 16/256-color Palette
+        elif tex.format == 3 or tex.format == 4:
+            for i in range(tex.height):
+                for j in range(0, tex.width, 2):
+                    index1 = common.getPaletteIndex(paldata, pixels[j, i], fixtransp)
+                    index2 = common.getPaletteIndex(paldata, pixels[j + 1, i], fixtransp)
+                    nitro.writeNCGRData(f, 4 if tex.format == 3 else 8, index1, index2)
+        # 4x4-Texel Compressed Texture
+        elif tex.format == 5:
+            common.logError("Texture format 5 not implemented")
+        # A5I3 Translucent Texture (5bit Alpha, 3bit Color Index)
+        elif tex.format == 6:
+            for i in range(tex.height):
+                for j in range(tex.width):
+                    index = common.getPaletteIndex(paldata, pixels[j, i], fixtransp)
+                    alpha = (pixels[j, i][3] * 32) // 256
+                    f.writeByte(index | (alpha << 3))
+        # Direct Color Texture
+        elif tex.format == 7:
+            common.logError("Texture format 7 not implemented")
+
+
 def write3DG(file, nsbmd):
     fixtransp = file.startswith("MSW_")
-    return fixtransp
+    return fixtransp, False, False, False

@@ -9,7 +9,7 @@ def writeLine(out, pos, byte, line, functions):
     if pos in functions:
         function = functions[pos] + "  "
         del functions[pos]
-    out.write(str(pos).zfill(5) + " 0x" + common.toHex(byte) + ": " + line + " " + function + "\n")
+    out.write(str(pos).zfill(5) + " 0x" + common.toHex(byte, True) + ": " + line + " " + function + "\n")
 
 
 def run(filename, processed=False):
@@ -61,11 +61,11 @@ def run(filename, processed=False):
                                 while i < sjislen - 1:
                                     strbyte = f.readByte()
                                     if strbyte in game.codes:
-                                        convert += "<" + common.toHex(strbyte) + ">"
+                                        convert += "<" + common.toHex(strbyte, True) + ">"
                                         i += 1
                                     else:
                                         f.seek(-1, 1)
-                                        char = common.toHex(f.readByte()) + common.toHex(f.readByte())
+                                        char = common.toHex(f.readByte(), True) + common.toHex(f.readByte(), True)
                                         convert += inversetable[char]
                                         i += 2
                             except KeyError:

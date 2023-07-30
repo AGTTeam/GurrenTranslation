@@ -3,6 +3,7 @@ import os
 import pickle
 import struct
 from PIL import Image
+import game
 from hacktools import common
 
 

@@ -3,8 +3,8 @@ import click
 import game
 from hacktools import common, nds, nitro
 
-version = "1.4.1"
-romfile = "data/gurren.nds"
+version = "1.5.0"
+romfile = "gurren.nds"
 rompatch = "data/gurren_patched.nds"
 bannerfile = "data/repack/banner.bin"
 patchfile = "data/patch.xdelta"
@@ -79,7 +79,7 @@ def extract(rom, bin, tdg, kpc, spc, vsc, yce):
         extract_yce.run()
 
 
-@common.cli.command()
+@common.cli.command(hidden=True)
 @click.argument("file")
 @click.option("--p", is_flag=True, default=False)
 def analyze(file, p):
@@ -87,7 +87,7 @@ def analyze(file, p):
     analyze_spc.run(file, p)
 
 
-@common.cli.command()
+@common.cli.command(hidden=True)
 @click.argument("file")
 @click.option("--n", default=0)
 def expand(file, n):
@@ -96,16 +96,16 @@ def expand(file, n):
 
 
 @common.cli.command()
-@click.option("--no-rom", is_flag=True, default=False)
+@click.option("--no-rom", is_flag=True, default=False, hidden=True)
 @click.option("--bin", is_flag=True, default=False)
 @click.option("--3dg", "tdg", is_flag=True, default=False)
 @click.option("--kpc", is_flag=True, default=False)
 @click.option("--spc", is_flag=True, default=False)
 @click.option("--vsc", is_flag=True, default=False)
 @click.option("--yce", is_flag=True, default=False)
-@click.option("--deb", is_flag=True, default=False)
-@click.option("--force", default="")
-@click.option("--analyze", default="")
+@click.option("--deb", is_flag=True, default=False, hidden=True)
+@click.option("--force", default="", hidden=True)
+@click.option("--analyze", default="", hidden=True)
 def repack(no_rom, bin, tdg, kpc, spc, vsc, yce, deb, force, analyze):
     all = not bin and not tdg and not kpc and not spc and not vsc and not yce
     if all or bin or spc:
@@ -117,7 +117,7 @@ def repack(no_rom, bin, tdg, kpc, spc, vsc, yce, deb, force, analyze):
         common.armipsPatch("bin_patch.asm")
     if all or tdg:
         common.copyFile("data/extract_NFP/NFP3D.NFP/MSW_C053.3DG", "data/extract_NFP/NFP3D.NFP/MSW_C083.3DG")
-        nitro.repackNSBMD("data/work_3DG/", "data/extract_NFP/NFP3D.NFP/", "data/work_NFP/NFP3D.NFP/", ".3DG", game.write3DG)
+        game.repackNSBMD("data/work_3DG/", "data/extract_NFP/NFP3D.NFP/", "data/work_NFP/NFP3D.NFP/", ".3DG", writefunc=game.write3DG)
         import patch_jnt
         patch_jnt.run()
     if all or kpc:
@@ -184,8 +184,4 @@ def repack(no_rom, bin, tdg, kpc, spc, vsc, yce, deb, force, analyze):
 
 
 if __name__ == "__main__":
-    click.echo("GurrenTranslation version " + version)
-    if not os.path.isdir("data"):
-        common.logError("data folder not found.")
-        quit()
-    common.cli()
+    common.setupTool("GurrenTranslation", version, "data", romfile, 0x6eac24b8)

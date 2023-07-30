@@ -98,9 +98,9 @@ def run():
         items.append(custom)
     # And a complete one from all the bigrams
     with codecs.open(spcin, "r", "utf-8") as spc:
-        inputs = common.getSection(spc, "", "#", game.fixchars)
+        inputs = common.getSection(spc, "", "#", game.fixchars, justone=False)
     with codecs.open(binin, "r", "utf-8") as bin:
-        inputs.update(common.getSection(bin, "", "#", game.fixchars))
+        inputs.update(common.getSection(bin, "", "#", game.fixchars, justone=False))
     for k, input in inputs.items():
         for str in input:
             str = "<0A>".join(str.replace("|", "<0A>").split(">>"))
@@ -164,7 +164,7 @@ def run():
         if fontx < 0:
             fontx = 197
             fonty -= 13
-        tablestr = (item + "=" + common.toHex(codes[x]) + "\n") + tablestr
+        tablestr = (item + "=" + common.toHex(codes[x], True) + "\n") + tablestr
         x -= 1
     with codecs.open(table, "w", "utf-8") as f:
         f.write(tablestr)
