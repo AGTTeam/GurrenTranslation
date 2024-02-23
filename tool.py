@@ -3,7 +3,7 @@ import click
 import game
 from hacktools import common, nds, nitro
 
-version = "1.5.0"
+version = "1.5.1"
 romfile = "gurren.nds"
 rompatch = "data/gurren_patched.nds"
 bannerfile = "data/repack/banner.bin"
@@ -62,7 +62,7 @@ def extract(rom, bin, tdg, kpc, spc, vsc, yce):
         import extract_bin
         extract_bin.run()
     if all or tdg:
-        nitro.extractNSBMD("data/extract_NFP/NFP3D.NFP/", "data/out_3DG/", ".3DG")
+        nitro.extractNSBMD("data/extract_NFP/NFP3D.NFP/", "data/out_3DG/", ".3DG", readfunc=game.read3DG)
     if all or kpc:
         import extract_kpc
         extract_kpc.run()

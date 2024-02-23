@@ -394,6 +394,10 @@ def writeNSBMD(file, nsbmd, texi, infile, fixtransp=False):
             common.logError("Texture format 7 not implemented")
 
 
+def read3DG(file):
+    return file.startswith("MSW_") or file.startswith("RSLT_")
+
+
 def write3DG(file, nsbmd):
     fixtransp = file.startswith("MSW_")
     return fixtransp, False, False, False
