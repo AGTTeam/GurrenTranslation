@@ -1,5 +1,5 @@
 # Gurren Translation
-This repository is for the tool used to translate the game. If you're looking for the English patch, click [here](http://www.romhacking.net/translations/5846/).  
+This repository is for the tool used to translate the game. If you're looking for the English patch, click [here](https://agtteam.net/gurren).  
 ## Setup
 Install [Python 3](https://www.python.org/downloads/).  
 Download [NerdFontTerminatoR.exe](https://github.com/pleonex/NerdFontTerminatoR/releases).  
